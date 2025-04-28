@@ -1,21 +1,19 @@
 package com.ashank.guilds;
 
-// import com.ashank.guilds.data.DatabaseManager; // Remove this import
-import com.ashank.guilds.data.StorageManager; // Add this import
-import com.ashank.guilds.commands.GuildCommandExecutor;
+import com.ashank.guilds.data.StorageManager;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitTask; // Import BukkitTask
+import org.bukkit.scheduler.BukkitTask;
 
-import java.util.concurrent.TimeUnit; // Import TimeUnit
-import java.util.logging.Level; // Import Level
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import com.ashank.guilds.managers.Messages;
 
 public class GuildsPlugin extends JavaPlugin {
 
-    // private DatabaseManager databaseManager; // Change type
+
     private StorageManager storageManager;
-    private BukkitTask inviteCleanupTask; // Store the task to cancel it later
+    private BukkitTask inviteCleanupTask;
     private Messages messages;
 
     @Override
