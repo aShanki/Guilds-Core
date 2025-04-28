@@ -78,23 +78,6 @@ You can also customize all player-facing messages in `plugins/Guilds/messages.ym
 If PlaceholderAPI is installed, you can use:
 - `%guild_name%`: Shows the player's guild name (or "None")
 
-## Building & Development
-
-To build the plugin from source:
-
-```sh
-./deploy.sh
-```
-
-This will compile and package the plugin. The output JAR will be in the `build/libs/` directory.
-
 ## Support
 
-For help, bug reports, or feature requests, please open an issue or contact the author.
-
----
-**Author:** Ashank
-
-**API Version:** 1.21
-
-**License:** MIT (or as specified) 
+For help, bug reports, or feature requests, please open an issue.
