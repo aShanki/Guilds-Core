@@ -11,7 +11,7 @@ public class Messages {
 
     public Messages(JavaPlugin plugin) {
         this.plugin = plugin;
-        // Ensure messages.yml exists in the data folder
+        
         File messagesFile = new File(plugin.getDataFolder(), "messages.yml");
         if (!messagesFile.exists()) {
             plugin.saveResource("messages.yml", false);

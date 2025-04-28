@@ -1,25 +1,25 @@
 package com.ashank.guilds.data;
 
-import com.ashank.guilds.Guild; // Assuming Guild class/record exists
+import com.ashank.guilds.Guild; 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.flywaydb.core.Flyway; // Import Flyway
-import org.flywaydb.core.api.FlywayException; // Import FlywayException
+import org.flywaydb.core.Flyway; 
+import org.flywaydb.core.api.FlywayException; 
 
-import java.sql.*; // Import needed SQL classes
-import java.util.ArrayList; // Import for lists
-import java.util.HashSet; // Import for sets
-import java.util.List; // Import List
-import java.util.Optional; // Import Optional
-import java.util.Set; // Import Set
-import java.util.UUID; // Import UUID
+import java.sql.*; 
+import java.util.ArrayList; 
+import java.util.HashSet; 
+import java.util.List; 
+import java.util.Optional; 
+import java.util.Set; 
+import java.util.UUID; 
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
-// TODO: Define Confirmation class/record based on TODO.MD
-// Placeholder for Confirmation
+
+
 
 public class StorageManager {
 
@@ -35,19 +35,19 @@ public class StorageManager {
             ConfigurationSection mysqlConfig = plugin.getConfig().getConfigurationSection("mysql");
             if (mysqlConfig == null) {
                 plugin.getLogger().severe("MySQL configuration section is missing in config.yml!");
-                // Optionally disable plugin or throw an error
+                
                 return;
             }
 
             HikariConfig config = new HikariConfig();
             config.setJdbcUrl("jdbc:mysql://" + mysqlConfig.getString("host", "localhost") + ":"
                     + mysqlConfig.getInt("port", 3306) + "/"
-                    + mysqlConfig.getString("database", "guilds") + "?useSSL=false&autoReconnect=true"); // Added common flags
+                    + mysqlConfig.getString("database", "guilds") + "?useSSL=false&autoReconnect=true"); 
             config.setUsername(mysqlConfig.getString("username"));
             config.setPassword(mysqlConfig.getString("password"));
             config.setMaximumPoolSize(mysqlConfig.getInt("pool-size", 10));
 
-            // Recommended settings for reliability and performance
+            
             config.addDataSourceProperty("cachePrepStmts", "true");
             config.addDataSourceProperty("prepStmtCacheSize", "250");
             config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
@@ -60,41 +60,41 @@ public class StorageManager {
             config.addDataSourceProperty("maintainTimeStats", "false");
 
             try {
-// Explicitly load the MySQL driver class
+
                 try {
                     Class.forName("com.mysql.cj.jdbc.Driver");
                 } catch (ClassNotFoundException e) {
                     plugin.getLogger().log(Level.SEVERE, "MySQL JDBC Driver not found! Make sure it's included in your dependencies.", e);
-                    // Optionally re-throw or handle more gracefully depending on requirements
+                    
                     throw new RuntimeException("MySQL JDBC Driver not found", e);
                 }
                 dataSource = new HikariDataSource(config);
                 plugin.getLogger().info("Database connection pool initialized successfully.");
 
-                // Run schema migrations using Flyway
+                
                 try {
                     Flyway flyway = Flyway.configure()
                             .dataSource(dataSource)
-                            .locations("classpath:db/migration") // Point to migration scripts in resources
-                            .baselineOnMigrate(true) // Creates schema_version if it doesn't exist
+                            .locations("classpath:db/migration") 
+                            .baselineOnMigrate(true) 
                             .load();
                     flyway.migrate();
                     plugin.getLogger().info("Database schema migration completed successfully.");
                 } catch (FlywayException e) {
                     plugin.getLogger().log(Level.SEVERE, "Database schema migration failed!", e);
-                    // Close the datasource if migration fails, as the schema might be inconsistent
+                    
                     if (dataSource != null && !dataSource.isClosed()) {
                         dataSource.close();
                     }
-                    dataSource = null; // Ensure dataSource is null after failure
-                    return; // Stop further execution if migration fails
+                    dataSource = null; 
+                    return; 
                 }
-                // TODO: Run schema migrations (Step 3.1) // Remove original TODO
+                
             } catch (Exception e) {
                 plugin.getLogger().log(Level.SEVERE, "Could not initialize database connection pool!", e);
-                // Ensure dataSource is null if Hikari initialization fails
+                
                 if (dataSource != null && !dataSource.isClosed()) {
-                     try { dataSource.close(); } catch (Exception closeEx) { /* ignored */ }
+                     try { dataSource.close(); } catch (Exception closeEx) {  }
                 }
                 dataSource = null;
             }
@@ -111,7 +111,7 @@ public class StorageManager {
                 return dataSource.getConnection();
             } catch (SQLException e) {
                 plugin.getLogger().log(Level.SEVERE, "Could not retrieve connection from pool!", e);
-                throw new RuntimeException(e); // Re-throw as unchecked for CompletableFuture handling
+                throw new RuntimeException(e); 
             }
         });
     }
@@ -123,15 +123,11 @@ public class StorageManager {
         }
     }
 
-    // --- CRUD Methods (Step 3.3) ---
+    
 
-    // == Guilds Table ==
+    
 
-    /**
-     * Creates a new guild entry in the database.
-     * @param guild The Guild object to create.
-     * @return CompletableFuture<Void> indicating completion.
-     */
+    
     public CompletableFuture<Void> createGuild(Guild guild) {
         String sql = "INSERT INTO guilds (id, name, leader_uuid, description) VALUES (?, ?, ?, ?)";
         return getConnection().thenComposeAsync(conn -> {
@@ -139,7 +135,7 @@ public class StorageManager {
                 ps.setString(1, guild.getGuildId().toString());
                 ps.setString(2, guild.getName());
                 ps.setString(3, guild.getLeaderUuid().toString());
-                ps.setString(4, guild.getDescription()); // Can be null
+                ps.setString(4, guild.getDescription()); 
                 ps.executeUpdate();
                 return CompletableFuture.completedFuture(null);
             } catch (SQLException e) {
@@ -151,11 +147,7 @@ public class StorageManager {
         });
     }
 
-    /**
-     * Retrieves a guild by its unique ID.
-     * @param guildId The UUID of the guild.
-     * @return CompletableFuture<Optional<Guild>> containing the guild if found.
-     */
+    
     public CompletableFuture<Optional<Guild>> getGuildById(UUID guildId) {
         String sql = "SELECT id, name, leader_uuid, description FROM guilds WHERE id = ?";
         final CompletableFuture<Optional<Guild>> guildFuture = new CompletableFuture<>();
@@ -166,7 +158,7 @@ public class StorageManager {
                 ps.setString(1, guildId.toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
-                        foundGuild = Optional.of(mapResultSetToGuild(rs)); // Members fetched later
+                        foundGuild = Optional.of(mapResultSetToGuild(rs)); 
                     }
                 }
             } catch (SQLException e) {
@@ -180,7 +172,7 @@ public class StorageManager {
             if (foundGuild.isPresent()) {
                 Guild guild = foundGuild.get();
                 getGuildMembers(guild.getGuildId()).thenAccept(members -> {
-                    members.forEach(guild::addMember); // Add fetched members
+                    members.forEach(guild::addMember); 
                     guildFuture.complete(Optional.of(guild));
                 }).exceptionally(ex -> {
                     plugin.getLogger().log(Level.SEVERE, "Failed to fetch members for guild ID: " + guildId, ex);
@@ -195,13 +187,9 @@ public class StorageManager {
         return guildFuture;
     }
 
-     /**
-     * Retrieves a guild by its name (case-insensitive lookup suggested).
-     * @param name The name of the guild.
-     * @return CompletableFuture<Optional<Guild>> containing the guild if found.
-     */
+     
     public CompletableFuture<Optional<Guild>> getGuildByName(String name) {
-        // Use LOWER() for case-insensitive comparison if needed by DB collation
+        
         String sql = "SELECT id, name, leader_uuid, description FROM guilds WHERE LOWER(name) = LOWER(?)";
         final CompletableFuture<Optional<Guild>> guildFuture = new CompletableFuture<>();
 
@@ -211,7 +199,7 @@ public class StorageManager {
                 ps.setString(1, name);
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
-                         foundGuild = Optional.of(mapResultSetToGuild(rs)); // Members fetched later
+                         foundGuild = Optional.of(mapResultSetToGuild(rs)); 
                     }
                 }
             } catch (SQLException e) {
@@ -225,11 +213,11 @@ public class StorageManager {
             if (foundGuild.isPresent()) {
                 Guild guild = foundGuild.get();
                 getGuildMembers(guild.getGuildId()).thenAccept(members -> {
-                    members.forEach(guild::addMember); // Add fetched members
+                    members.forEach(guild::addMember); 
                     guildFuture.complete(Optional.of(guild));
                 }).exceptionally(ex -> {
                     plugin.getLogger().log(Level.SEVERE, "Failed to fetch members for guild name: " + name, ex);
-                    guildFuture.completeExceptionally(ex); // Propagate member fetch failure
+                    guildFuture.completeExceptionally(ex); 
                     return null;
                 });
             } else {
@@ -239,11 +227,7 @@ public class StorageManager {
         return guildFuture;
     }
 
-    /**
-     * Retrieves a guild by its leader's UUID.
-     * @param leaderUuid The UUID of the guild leader.
-     * @return CompletableFuture<Optional<Guild>> containing the guild if found.
-     */
+    
     public CompletableFuture<Optional<Guild>> getGuildByLeader(UUID leaderUuid) {
         String sql = "SELECT id, name, leader_uuid, description FROM guilds WHERE leader_uuid = ?";
         final CompletableFuture<Optional<Guild>> guildFuture = new CompletableFuture<>();
@@ -254,7 +238,7 @@ public class StorageManager {
                 ps.setString(1, leaderUuid.toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
-                        foundGuild = Optional.of(mapResultSetToGuild(rs)); // Members fetched later
+                        foundGuild = Optional.of(mapResultSetToGuild(rs)); 
                     }
                 }
             } catch (SQLException e) {
@@ -268,7 +252,7 @@ public class StorageManager {
             if (foundGuild.isPresent()) {
                 Guild guild = foundGuild.get();
                 getGuildMembers(guild.getGuildId()).thenAccept(members -> {
-                    members.forEach(guild::addMember); // Add fetched members
+                    members.forEach(guild::addMember); 
                     guildFuture.complete(Optional.of(guild));
                 }).exceptionally(ex -> {
                     plugin.getLogger().log(Level.SEVERE, "Failed to fetch members for guild with leader: " + leaderUuid, ex);
@@ -283,10 +267,7 @@ public class StorageManager {
         return guildFuture;
     }
 
-    /**
-     * Retrieves all guilds from the database.
-     * @return CompletableFuture<List<Guild>> containing all guilds.
-     */
+    
     public CompletableFuture<List<Guild>> getAllGuilds() {
         String sql = "SELECT id, name, leader_uuid, description FROM guilds";
         final CompletableFuture<List<Guild>> guildsFuture = new CompletableFuture<>();
@@ -298,15 +279,15 @@ public class StorageManager {
                 while (rs.next()) {
                     Guild guild = mapResultSetToGuild(rs);
                     guilds.add(guild);
-                    // Create a future for fetching and adding members for this guild
+                    
                     CompletableFuture<Void> memberFuture = getGuildMembers(guild.getGuildId())
                         .thenAccept(members -> members.forEach(guild::addMember))
                         .exceptionally(ex -> {
                              plugin.getLogger().log(Level.SEVERE, "Failed to fetch members for guild: " + guild.getName(), ex);
-                             // Decide how to handle partial failure: maybe complete the main future exceptionally?
-                             // For now, just log and continue, the guild will have missing members
-                             // To fail fast, uncomment the line below:
-                             // if (!guildsFuture.isDone()) guildsFuture.completeExceptionally(ex);
+                             
+                             
+                             
+                             
                              return null;
                          });
                     memberFetchFutures.add(memberFuture);
@@ -319,19 +300,19 @@ public class StorageManager {
                  try { conn.close(); } catch (SQLException e) { plugin.getLogger().log(Level.WARNING, "Error closing connection", e); }
             }
 
-            // Wait for all member fetches to complete
+            
             CompletableFuture.allOf(memberFetchFutures.toArray(new CompletableFuture[0]))
                 .whenComplete((v, ex) -> {
                     if (ex != null) {
-                        // If any member fetch failed exceptionally (and wasn't handled in .exceptionally above),
-                        // complete the main future exceptionally.
-                        // Check if already completed to avoid race conditions if fail-fast was enabled.
+                        
+                        
+                        
                         if (!guildsFuture.isDone()) {
                             plugin.getLogger().log(Level.SEVERE, "One or more member fetches failed during getAllGuilds", ex);
                             guildsFuture.completeExceptionally(ex);
                         }
                     } else {
-                        // All member fetches succeeded (or logged errors without throwing)
+                        
                          if (!guildsFuture.isDone()) {
                             guildsFuture.complete(guilds);
                         }
@@ -344,12 +325,7 @@ public class StorageManager {
     }
 
 
-     /**
-     * Updates an existing guild's data (name, description, leader).
-     * Note: Member updates are handled by add/remove member methods.
-     * @param guild The Guild object with updated information.
-     * @return CompletableFuture<Boolean> true if update was successful.
-     */
+     
     public CompletableFuture<Boolean> updateGuild(Guild guild) {
         String sql = "UPDATE guilds SET name = ?, description = ?, leader_uuid = ? WHERE id = ?";
         return getConnection().thenApplyAsync(conn -> {
@@ -369,11 +345,7 @@ public class StorageManager {
         });
     }
 
-    /**
-     * Deletes a guild and all its members (due to ON DELETE CASCADE).
-     * @param guildId The UUID of the guild to delete.
-     * @return CompletableFuture<Boolean> true if deletion was successful.
-     */
+    
     public CompletableFuture<Boolean> deleteGuild(UUID guildId) {
         String sql = "DELETE FROM guilds WHERE id = ?";
         return getConnection().thenApplyAsync(conn -> {
@@ -391,16 +363,11 @@ public class StorageManager {
     }
 
 
-    // == Guild Members Table ==
+    
 
-    /**
-     * Adds a player to a guild.
-     * @param guildId The guild's UUID.
-     * @param playerUuid The player's UUID.
-     * @return CompletableFuture<Void> indicating completion.
-     */
+    
     public CompletableFuture<Void> addGuildMember(UUID guildId, UUID playerUuid) {
-        String sql = "INSERT INTO guild_members (guild_id, player_uuid) VALUES (?, ?) ON DUPLICATE KEY UPDATE guild_id=guild_id"; // Ignore if already exists
+        String sql = "INSERT INTO guild_members (guild_id, player_uuid) VALUES (?, ?) ON DUPLICATE KEY UPDATE guild_id=guild_id"; 
         return getConnection().thenComposeAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setString(1, guildId.toString());
@@ -416,12 +383,7 @@ public class StorageManager {
         });
     }
 
-     /**
-     * Removes a player from a guild.
-     * @param guildId The guild's UUID.
-     * @param playerUuid The player's UUID.
-     * @return CompletableFuture<Boolean> true if a member was removed.
-     */
+     
     public CompletableFuture<Boolean> removeGuildMember(UUID guildId, UUID playerUuid) {
         String sql = "DELETE FROM guild_members WHERE guild_id = ? AND player_uuid = ?";
         return getConnection().thenApplyAsync(conn -> {
@@ -439,11 +401,7 @@ public class StorageManager {
         });
     }
 
-     /**
-     * Gets all member UUIDs for a specific guild.
-     * @param guildId The guild's UUID.
-     * @return CompletableFuture<Set<UUID>> containing member UUIDs.
-     */
+     
     public CompletableFuture<Set<UUID>> getGuildMembers(UUID guildId) {
         String sql = "SELECT player_uuid FROM guild_members WHERE guild_id = ?";
         return getConnection().thenApplyAsync(conn -> {
@@ -466,11 +424,7 @@ public class StorageManager {
         });
     }
 
-     /**
-     * Finds the guild a specific player belongs to.
-     * @param playerUuid The player's UUID.
-     * @return CompletableFuture<Optional<UUID>> containing the guild ID if the player is in a guild.
-     */
+     
     public CompletableFuture<Optional<UUID>> getPlayerGuildId(UUID playerUuid) {
         String sql = "SELECT guild_id FROM guild_members WHERE player_uuid = ?";
         return getConnection().thenApplyAsync(conn -> {
@@ -493,16 +447,12 @@ public class StorageManager {
     }
 
 
-     // == Invites Table ==
+     
 
-    /**
-     * Adds a pending invite to the database.
-     * @param invite The PendingInvite object.
-     * @return CompletableFuture<Void> indicating completion.
-     */
+    
     public CompletableFuture<Void> addInvite(PendingInvite invite) {
         String sql = "INSERT INTO invites (invited_uuid, guild_id, inviter_uuid, timestamp) VALUES (?, ?, ?, ?) " +
-                     "ON DUPLICATE KEY UPDATE guild_id = VALUES(guild_id), inviter_uuid = VALUES(inviter_uuid), timestamp = VALUES(timestamp)"; // Update if invite exists
+                     "ON DUPLICATE KEY UPDATE guild_id = VALUES(guild_id), inviter_uuid = VALUES(inviter_uuid), timestamp = VALUES(timestamp)"; 
         return getConnection().thenComposeAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setString(1, invite.invitedPlayerUuid().toString());
@@ -520,11 +470,7 @@ public class StorageManager {
         });
     }
 
-     /**
-     * Retrieves a pending invite for a specific player.
-     * @param invitedPlayerUuid The UUID of the invited player.
-     * @return CompletableFuture<Optional<PendingInvite>> containing the invite if found.
-     */
+     
     public CompletableFuture<Optional<PendingInvite>> getInvite(UUID invitedPlayerUuid) {
         String sql = "SELECT invited_uuid, guild_id, inviter_uuid, timestamp FROM invites WHERE invited_uuid = ?";
         return getConnection().thenApplyAsync(conn -> {
@@ -546,11 +492,7 @@ public class StorageManager {
         });
     }
 
-     /**
-     * Removes a pending invite for a player.
-     * @param invitedPlayerUuid The UUID of the invited player.
-     * @return CompletableFuture<Boolean> true if an invite was removed.
-     */
+     
     public CompletableFuture<Boolean> removeInvite(UUID invitedPlayerUuid) {
         String sql = "DELETE FROM invites WHERE invited_uuid = ?";
         return getConnection().thenApplyAsync(conn -> {
@@ -567,11 +509,7 @@ public class StorageManager {
         });
     }
 
-    /**
-     * Removes all invites older than the specified timestamp.
-     * @param expiryTimestamp The timestamp before which invites are considered expired.
-     * @return CompletableFuture<Integer> the number of expired invites removed.
-     */
+    
     public CompletableFuture<Integer> removeExpiredInvites(long expiryTimestamp) {
         String sql = "DELETE FROM invites WHERE timestamp < ?";
         return getConnection().thenApplyAsync(conn -> {
@@ -580,7 +518,7 @@ public class StorageManager {
                 return ps.executeUpdate();
             } catch (SQLException e) {
                 plugin.getLogger().log(Level.SEVERE, "Could not remove expired invites", e);
-                return 0; // Or throw
+                return 0; 
             } finally {
                  try { conn.close(); } catch (SQLException e) { plugin.getLogger().log(Level.WARNING, "Error closing connection", e); }
             }
@@ -588,21 +526,17 @@ public class StorageManager {
     }
 
 
-    // == Confirmations Table ==
+    
 
-     /**
-     * Adds a pending confirmation.
-     * @param confirmation The Confirmation object.
-     * @return CompletableFuture<Void> indicating completion.
-     */
+     
     public CompletableFuture<Void> addConfirmation(Confirmation confirmation) {
         String sql = "INSERT INTO confirmations (player_uuid, type, guild_id, timestamp) VALUES (?, ?, ?, ?) " +
-                     "ON DUPLICATE KEY UPDATE type = VALUES(type), guild_id = VALUES(guild_id), timestamp = VALUES(timestamp)"; // Update if exists
+                     "ON DUPLICATE KEY UPDATE type = VALUES(type), guild_id = VALUES(guild_id), timestamp = VALUES(timestamp)"; 
         return getConnection().thenComposeAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setString(1, confirmation.playerUuid().toString());
                 ps.setString(2, confirmation.type());
-                ps.setString(3, confirmation.guildId() != null ? confirmation.guildId().toString() : null); // Handle optional guild_id
+                ps.setString(3, confirmation.guildId() != null ? confirmation.guildId().toString() : null); 
                 ps.setLong(4, confirmation.timestamp());
                 ps.executeUpdate();
                 return CompletableFuture.completedFuture(null);
@@ -615,12 +549,7 @@ public class StorageManager {
         });
     }
 
-    /**
-     * Retrieves a pending confirmation for a specific player and type.
-     * @param playerUuid The player's UUID.
-     * @param type The type of confirmation (e.g., "DISBAND_OWN_GUILD").
-     * @return CompletableFuture<Optional<Confirmation>> containing the confirmation if found.
-     */
+    
     public CompletableFuture<Optional<Confirmation>> getConfirmation(UUID playerUuid, String type) {
         String sql = "SELECT player_uuid, type, guild_id, timestamp FROM confirmations WHERE player_uuid = ? AND type = ?";
         return getConnection().thenApplyAsync(conn -> {
@@ -643,11 +572,7 @@ public class StorageManager {
         });
     }
 
-     /**
-     * Removes a pending confirmation for a player (regardless of type).
-     * @param playerUuid The player's UUID.
-     * @return CompletableFuture<Boolean> true if a confirmation was removed.
-     */
+     
     public CompletableFuture<Boolean> removeConfirmation(UUID playerUuid) {
         String sql = "DELETE FROM confirmations WHERE player_uuid = ?";
         return getConnection().thenApplyAsync(conn -> {
@@ -664,11 +589,7 @@ public class StorageManager {
         });
     }
 
-     /**
-     * Removes all confirmations older than the specified timestamp.
-     * @param expiryTimestamp The timestamp before which confirmations are considered expired.
-     * @return CompletableFuture<Integer> the number of expired confirmations removed.
-     */
+     
     public CompletableFuture<Integer> removeExpiredConfirmations(long expiryTimestamp) {
         String sql = "DELETE FROM confirmations WHERE timestamp < ?";
         return getConnection().thenApplyAsync(conn -> {
@@ -677,7 +598,7 @@ public class StorageManager {
                 return ps.executeUpdate();
             } catch (SQLException e) {
                 plugin.getLogger().log(Level.SEVERE, "Could not remove expired confirmations", e);
-                return 0; // Or throw
+                return 0; 
             } finally {
                  try { conn.close(); } catch (SQLException e) { plugin.getLogger().log(Level.WARNING, "Error closing connection", e); }
             }
@@ -685,18 +606,18 @@ public class StorageManager {
     }
 
 
-    // --- Helper Methods for Mapping ResultSet ---
+    
 
     private Guild mapResultSetToGuild(ResultSet rs) throws SQLException {
-        // Members need to be fetched separately
+        
         UUID leaderUuid = UUID.fromString(rs.getString("leader_uuid"));
         Set<UUID> initialMembers = new HashSet<>();
-        initialMembers.add(leaderUuid); // Start with leader, required by constructor
+        initialMembers.add(leaderUuid); 
         return new Guild(
                 UUID.fromString(rs.getString("id")),
                 rs.getString("name"),
                 leaderUuid,
-                initialMembers, // Pass set containing only leader initially
+                initialMembers, 
                 rs.getString("description")
         );
     }
@@ -716,12 +637,12 @@ public class StorageManager {
          return new Confirmation(
                 UUID.fromString(rs.getString("player_uuid")),
                 rs.getString("type"),
-                guildId, // Handle nullable guild_id
+                guildId, 
                 rs.getLong("timestamp")
         );
     }
 
-    // New method for checking membership
+    
     public CompletableFuture<Boolean> isMember(UUID guildId, UUID playerUuid) {
         String sql = "SELECT COUNT(*) FROM guild_members WHERE guild_id = ? AND player_uuid = ?";
         return getConnection().thenApplyAsync(conn -> {
@@ -742,12 +663,7 @@ public class StorageManager {
         });
     }
 
-    /**
-     * Retrieves the Guild a player belongs to, if any.
-     * Combines getPlayerGuildId and getGuildById.
-     * @param playerUuid The UUID of the player.
-     * @return CompletableFuture<Optional<Guild>> containing the player's guild if found.
-     */
+    
     public CompletableFuture<Optional<Guild>> getPlayerGuildAsync(UUID playerUuid) {
         return getPlayerGuildId(playerUuid).thenComposeAsync(guildIdOpt -> {
             if (guildIdOpt.isPresent()) {
@@ -758,22 +674,18 @@ public class StorageManager {
         });
     }
 
-    /**
-     * Checks if a guild name is already taken (case-insensitive).
-     * @param name The guild name to check.
-     * @return CompletableFuture<Boolean> indicating if the name is taken.
-     */
+    
     public CompletableFuture<Boolean> isGuildNameTaken(String name) {
         String sql = "SELECT 1 FROM guilds WHERE LOWER(name) = LOWER(?) LIMIT 1";
         return getConnection().thenApplyAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setString(1, name);
                 try (ResultSet rs = ps.executeQuery()) {
-                    return rs.next(); // Returns true if a row exists (name is taken)
+                    return rs.next(); 
                 }
             } catch (SQLException e) {
                 plugin.getLogger().log(Level.SEVERE, "Could not check if guild name is taken: " + name, e);
-                 // Re-throw as unchecked exception to propagate failure
+                 
                 throw new RuntimeException("Database error checking guild name uniqueness", e);
             } finally {
                 try { conn.close(); } catch (SQLException e) { plugin.getLogger().log(Level.WARNING, "Error closing connection", e); }
@@ -781,12 +693,7 @@ public class StorageManager {
         });
     }
 
-    /**
-     * Updates the name of a specific guild.
-     * @param guildId The ID of the guild to update.
-     * @param newName The new name for the guild.
-     * @return CompletableFuture<Boolean> indicating if the update was successful (1 row affected).
-     */
+    
     public CompletableFuture<Boolean> updateGuildName(UUID guildId, String newName) {
         String sql = "UPDATE guilds SET name = ? WHERE id = ?";
         return getConnection().thenApplyAsync(conn -> {
@@ -794,10 +701,10 @@ public class StorageManager {
                 ps.setString(1, newName);
                 ps.setString(2, guildId.toString());
                 int affectedRows = ps.executeUpdate();
-                return affectedRows > 0; // Return true if the row was updated
+                return affectedRows > 0; 
             } catch (SQLException e) {
                 plugin.getLogger().log(Level.SEVERE, "Could not update guild name for ID: " + guildId, e);
-                // Re-throw as unchecked exception to propagate failure
+                
                 throw new RuntimeException("Database error updating guild name", e);
             } finally {
                 try { conn.close(); } catch (SQLException e) { plugin.getLogger().log(Level.WARNING, "Error closing connection", e); }
@@ -805,10 +712,7 @@ public class StorageManager {
         });
     }
 
-    /**
-     * Returns the name of the guild a player belongs to, or null if not in a guild.
-     * Used for PlaceholderAPI sync placeholder support.
-     */
+    
     public CompletableFuture<String> getGuildNameForPlayer(UUID playerUuid) {
         return getPlayerGuildAsync(playerUuid).thenApply(optGuild -> optGuild.map(Guild::getName).orElse(null));
     }

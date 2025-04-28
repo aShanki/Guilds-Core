@@ -40,7 +40,7 @@ public class GuildChatCommand implements CommandExecutor {
         String message = String.join(" ", args);
         UUID playerUuid = player.getUniqueId();
 
-        // Async: Get the player's guild
+        
         storageManager.getPlayerGuildAsync(playerUuid).whenCompleteAsync((guildOpt, ex) -> {
             if (ex != null) {
                 player.sendMessage(Component.text("An error occurred while checking your guild.", NamedTextColor.RED));
@@ -54,7 +54,7 @@ public class GuildChatCommand implements CommandExecutor {
             }
             Guild guild = guildOpt.get();
             Set<UUID> memberUuids = guild.getMemberUuids();
-            // Get all online members
+            
             Set<Player> onlineMembers = memberUuids.stream()
                     .map(Bukkit::getPlayer)
                     .filter(p -> p != null && p.isOnline())
@@ -63,7 +63,7 @@ public class GuildChatCommand implements CommandExecutor {
                 player.sendMessage(Component.text("No online guild members to receive your message.", NamedTextColor.YELLOW));
                 return;
             }
-            // Format: [Guild] <PlayerName>: message
+            
             Component formatted = Component.text()
                     .append(Component.text("[Guild] ", NamedTextColor.DARK_AQUA))
                     .append(Component.text(player.getName(), NamedTextColor.AQUA))

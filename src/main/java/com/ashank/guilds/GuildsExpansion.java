@@ -41,11 +41,11 @@ public class GuildsExpansion extends PlaceholderExpansion {
             return "";
         }
         if (params.equalsIgnoreCase("name")) {
-            // Async SQL lookup is not possible directly here, so we use a sync fallback and warn in logs.
-            // For best practice, cache results or use a sync-safe cache if needed.
+            
+            
             try {
                 CompletableFuture<String> future = storageManager.getGuildNameForPlayer(player.getUniqueId());
-                String guildName = future.get(); // This blocks, but PlaceholderAPI requires sync return.
+                String guildName = future.get(); 
                 return guildName != null ? guildName : plugin.getConfig().getString("placeholder.no_guild", "None");
             } catch (Exception e) {
                 plugin.getLogger().warning("Failed to fetch guild name for placeholder: " + e.getMessage());
