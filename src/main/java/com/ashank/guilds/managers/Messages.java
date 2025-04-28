@@ -11,15 +11,16 @@ public class Messages {
 
     public Messages(JavaPlugin plugin) {
         this.plugin = plugin;
+        // Ensure messages.yml exists in the data folder
+        File messagesFile = new File(plugin.getDataFolder(), "messages.yml");
+        if (!messagesFile.exists()) {
+            plugin.saveResource("messages.yml", false);
+        }
         loadMessages();
     }
 
     private void loadMessages() {
-        File messagesFile = new File(plugin.getDataFolder().getParentFile().getParentFile(), "src/main/resources/messages.yml");
-        if (!messagesFile.exists()) {
-            // Fallback: try plugin's data folder (for production JAR)
-            messagesFile = new File(plugin.getDataFolder(), "messages.yml");
-        }
+        File messagesFile = new File(plugin.getDataFolder(), "messages.yml");
         messagesConfig = YamlConfiguration.loadConfiguration(messagesFile);
     }
 
