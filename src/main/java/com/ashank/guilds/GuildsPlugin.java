@@ -74,8 +74,8 @@ public class GuildsPlugin extends JavaPlugin {
     private void registerCommands() {
          // Register commands only after StorageManager is confirmed ready
         if (getCommand("guild") != null) {
-            // Pass StorageManager to the command executor
-            getCommand("guild").setExecutor(new GuildCommandExecutor(this, storageManager));
+            // Pass plugin to the command executor
+            getCommand("guild").setExecutor(new com.ashank.guilds.commands.GuildCommand(this));
             getLogger().info("Registered /guild command executor.");
         } else {
             getLogger().warning("Could not find 'guild' command in plugin.yml! Command will not work.");
