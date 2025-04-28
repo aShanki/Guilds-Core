@@ -51,13 +51,12 @@ public class GuildsPlugin extends JavaPlugin {
             getLogger().info("Scheduled expired invite cleanup task.");
 
             // You can register commands/listeners here if they depend on the DB being ready
+            messages = new Messages(this);
             registerCommands(); // Moved registration here to ensure DB is ready
 
             if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
                 new com.ashank.guilds.GuildsExpansion(this);
             }
-
-            messages = new Messages(this);
 
         }, getServer().getScheduler().getMainThreadExecutor(this)).exceptionally(ex -> {
             getLogger().severe("Failed to initialize StorageManager: " + ex.getMessage());
