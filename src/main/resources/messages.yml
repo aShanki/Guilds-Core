@@ -32,4 +32,18 @@ guild:
   admin_disbanded: "<red>Guild has been disbanded by an admin."
   leave_leader_deny: "<red>As the guild leader, you must disband the guild instead of leaving it. Use /guild disband."
   left_notify: "<yellow><player> has left your guild."
-  onlyPlayers: "<red>Only players can use this command." 
+  onlyPlayers: "<red>Only players can use this command."
+  help: |
+    <gold><bold>Guilds Plugin Help</bold></gold>
+    <yellow>/guild create <name></yellow> <gray>- Create a new guild</gray>
+    <yellow>/guild invite <player></yellow> <gray>- Invite a player</gray>
+    <yellow>/guild join <name></yellow> <gray>- Join a guild</gray>
+    <yellow>/guild leave</yellow> <gray>- Leave your current guild</gray>
+    <yellow>/guild kick <player></yellow> <gray>- Kick a member</gray>
+    <yellow>/guild description <text></yellow> <gray>- Set guild description</gray>
+    <yellow>/guild info [name]</yellow> <gray>- View info about a guild</gray>
+    <yellow>/guild list [page]</yellow> <gray>- List all guilds</gray>
+    <yellow>/guild disband</yellow> <gray>- Disband your guild (leader only)</gray>
+    <yellow>/guild admin ...</yellow> <gray>- Admin subcommands (rename, wipe description, disband any guild, etc.)</gray>
+    <yellow>/gc <message></yellow> <gray>- Send a message to your guild chat</gray>
+    <gray>For more info: /guild help</gray> 
