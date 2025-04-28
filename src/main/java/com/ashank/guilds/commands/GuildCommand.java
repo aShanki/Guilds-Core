@@ -15,6 +15,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -29,6 +30,7 @@ public class GuildCommand implements CommandExecutor {
     private final GuildsPlugin plugin;
     private final StorageManager storageManager;
     private final Messages messages;
+    private final MiniMessage miniMessage = MiniMessage.miniMessage();
 
     
     private final int minGuildNameLength = 3;
@@ -115,7 +117,7 @@ public class GuildCommand implements CommandExecutor {
         if (player == null) return;
 
         if (args.length != 2) {
-            player.sendMessage(Component.text("Usage: /guild create <name>", NamedTextColor.RED));
+            player.sendMessage(miniMessage.deserialize("<red>Usage: /guild create <name>"));
             return;
         }
 
@@ -124,11 +126,11 @@ public class GuildCommand implements CommandExecutor {
 
         
         if (guildName.length() < minGuildNameLength || guildName.length() > maxGuildNameLength) {
-            player.sendMessage(Component.text("Guild name must be between " + minGuildNameLength + " and " + maxGuildNameLength + " characters.", NamedTextColor.RED));
+            player.sendMessage(miniMessage.deserialize("<red>Guild name must be between " + minGuildNameLength + " and " + maxGuildNameLength + " characters."));
             return;
         }
         if (!allowedGuildNameChars.matcher(guildName).matches()) {
-            player.sendMessage(Component.text("Guild name can only contain letters and numbers.", NamedTextColor.RED));
+            player.sendMessage(miniMessage.deserialize("<red>Guild name can only contain letters and numbers."));
             return;
         }
 
@@ -136,14 +138,14 @@ public class GuildCommand implements CommandExecutor {
         storageManager.getPlayerGuildId(playerUuid).thenCompose(guildIdOptional -> {
             
             if (guildIdOptional.isPresent()) {
-                player.sendMessage(Component.text("You are already in a guild.", NamedTextColor.RED));
+                player.sendMessage(miniMessage.deserialize("<red>You are already in a guild."));
                 return CompletableFuture.completedFuture(null); 
             }
 
             
             return storageManager.getGuildByName(guildName).thenCompose(existingGuildOptional -> {
                 if (existingGuildOptional.isPresent()) {
-                    player.sendMessage(Component.text("A guild with that name already exists.", NamedTextColor.RED));
+                    player.sendMessage(miniMessage.deserialize("<red>A guild with that name already exists."));
                     return CompletableFuture.completedFuture(null); 
                 }
 
@@ -160,13 +162,13 @@ public class GuildCommand implements CommandExecutor {
                     storageManager.addGuildMember(newGuildId, playerUuid) 
                 ).thenAccept(v -> {
                     
-                    player.sendMessage(Component.text("Guild '" + guildName + "' created successfully!", NamedTextColor.GREEN));
+                    player.sendMessage(miniMessage.deserialize("<green>Guild '<gold>" + guildName + "</gold>' created successfully!"));
                 });
             });
         }).exceptionally(ex -> {
             plugin.getLogger().severe("Error during guild creation for player " + player.getName() + ": " + ex.getMessage());
             ex.printStackTrace(); 
-            player.sendMessage(Component.text("An error occurred while creating the guild. Please contact an administrator.", NamedTextColor.RED));
+            player.sendMessage(miniMessage.deserialize("<red>An error occurred while creating the guild. Please contact an administrator."));
             return null;
         });
     }
@@ -180,7 +182,7 @@ public class GuildCommand implements CommandExecutor {
         UUID senderUuid = player.getUniqueId();
 
         if (args.length != 2) {
-            player.sendMessage(Component.text("Usage: /guild invite <player>", NamedTextColor.RED));
+            player.sendMessage(miniMessage.deserialize("<red>Usage: /guild invite <player>"));
             return;
         }
 
@@ -189,7 +191,7 @@ public class GuildCommand implements CommandExecutor {
         
         storageManager.getPlayerGuildId(senderUuid).thenCompose(guildIdOptional -> {
             if (guildIdOptional.isEmpty()) {
-                player.sendMessage(Component.text("You are not in a guild.", NamedTextColor.RED));
+                player.sendMessage(miniMessage.deserialize("<red>You are not in a guild."));
                 return CompletableFuture.completedFuture(null); 
             }
 
@@ -200,7 +202,7 @@ public class GuildCommand implements CommandExecutor {
                 if (guildOptional.isEmpty()) {
                     
                     plugin.getLogger().warning("Guild ID " + guildId + " found for player " + player.getName() + " but guild not found in storage.");
-                    player.sendMessage(Component.text("An internal error occurred trying to find your guild.", NamedTextColor.RED));
+                    player.sendMessage(miniMessage.deserialize("<red>An internal error occurred trying to find your guild."));
                     return CompletableFuture.completedFuture(null);
                 }
 
@@ -208,14 +210,14 @@ public class GuildCommand implements CommandExecutor {
 
                 
                 if (!guild.getLeaderUuid().equals(senderUuid)) {
-                    player.sendMessage(Component.text("Only the guild leader can invite players.", NamedTextColor.RED));
+                    player.sendMessage(miniMessage.deserialize("<red>Only the guild leader can invite players."));
                     return CompletableFuture.completedFuture(null); 
                 }
 
                 
                 Player targetPlayer = plugin.getServer().getPlayerExact(targetPlayerName);
                 if (targetPlayer == null) {
-                    player.sendMessage(Component.text("Player '" + targetPlayerName + "' not found or is offline.", NamedTextColor.RED));
+                    player.sendMessage(miniMessage.deserialize("<red>Player '" + targetPlayerName + "' not found or is offline."));
                     return CompletableFuture.completedFuture(null); 
                 }
 
@@ -223,21 +225,21 @@ public class GuildCommand implements CommandExecutor {
 
                 
                 if (targetUuid.equals(senderUuid)) {
-                     player.sendMessage(Component.text("You cannot invite yourself.", NamedTextColor.RED));
+                     player.sendMessage(miniMessage.deserialize("<red>You cannot invite yourself."));
                      return CompletableFuture.completedFuture(null);
                 }
 
                 
                 return storageManager.getPlayerGuildId(targetUuid).thenCompose(targetGuildIdOptional -> {
                     if (targetGuildIdOptional.isPresent()) {
-                        player.sendMessage(Component.text("Player '" + targetPlayerName + "' is already in a guild.", NamedTextColor.RED));
+                        player.sendMessage(miniMessage.deserialize("<red>Player '" + targetPlayerName + "' is already in a guild."));
                         return CompletableFuture.completedFuture(null); 
                     }
 
                     
                     return storageManager.getInvite(targetUuid).thenCompose(existingInviteOptional -> {
                         if (existingInviteOptional.isPresent()) {
-                            player.sendMessage(Component.text("Player '" + targetPlayerName + "' already has a pending guild invite.", NamedTextColor.RED));
+                            player.sendMessage(miniMessage.deserialize("<red>Player '" + targetPlayerName + "' already has a pending guild invite."));
                             return CompletableFuture.completedFuture(null); 
                         }
 
@@ -249,27 +251,16 @@ public class GuildCommand implements CommandExecutor {
                         return storageManager.addInvite(invite).thenAccept(v -> {
                             
                             
-                            Component inviteMessage = Component.text()
-                                    .content("You have been invited to join the guild ")
-                                    .append(Component.text(guild.getName(), NamedTextColor.GOLD))
-                                    .append(Component.text(" by "))
-                                    .append(Component.text(player.getName(), NamedTextColor.AQUA))
-                                    .append(Component.text(". "))
-                                    .append(
-                                            Component.text("[Click here to accept]", NamedTextColor.GREEN)
-                                                    .clickEvent(net.kyori.adventure.text.event.ClickEvent.runCommand("/guild accept"))
-                                                    .hoverEvent(net.kyori.adventure.text.event.HoverEvent.showText(Component.text("Click to accept the invite!")))
-                                    )
-                                    .append(Component.text(" or type /guild accept.", NamedTextColor.GRAY))
-                                    .build();
-                            targetPlayer.sendMessage(inviteMessage);
+                            String inviteMsg = "You have been invited to join the guild <gold>" + guild.getName() + "</gold> by <aqua>" + player.getName() + "</aqua>. " +
+                                    "<green><click:run_command:'/guild accept'><hover:show_text:'Click to accept the invite!'>[Click here to accept]</hover></click></green> <gray>or type /guild accept.</gray>";
+                            targetPlayer.sendMessage(miniMessage.deserialize(inviteMsg));
 
                             
-                            player.sendMessage(Component.text("Invite sent to " + targetPlayer.getName() + ".", NamedTextColor.GREEN));
+                            player.sendMessage(miniMessage.deserialize("<green>Invite sent to " + targetPlayer.getName() + "."));
 
                         }).exceptionally(inviteEx -> {
                             plugin.getLogger().log(Level.SEVERE, "Failed to save invite for target " + targetUuid, inviteEx);
-                            player.sendMessage(Component.text("An error occurred while sending the invite.", NamedTextColor.RED));
+                            player.sendMessage(miniMessage.deserialize("<red>An error occurred while sending the invite."));
                             return null; 
                         });
                     });
@@ -280,7 +271,7 @@ public class GuildCommand implements CommandExecutor {
         }).exceptionally(ex -> {
             plugin.getLogger().severe("Error during guild invite for player " + player.getName() + ": " + ex.getMessage());
             ex.printStackTrace(); 
-            player.sendMessage(Component.text("An error occurred while processing the invite command. Please contact an administrator.", NamedTextColor.RED));
+            player.sendMessage(miniMessage.deserialize("<red>An error occurred while processing the invite command. Please contact an administrator."));
             return null;
         });
     }
@@ -296,7 +287,7 @@ public class GuildCommand implements CommandExecutor {
         
         storageManager.getInvite(playerUuid).thenCompose(inviteOptional -> {
             if (inviteOptional.isEmpty()) {
-                player.sendMessage(Component.text("You do not have any pending guild invites.", NamedTextColor.RED));
+                player.sendMessage(miniMessage.deserialize("<red>You do not have any pending guild invites."));
                 return CompletableFuture.completedFuture(null); 
             }
 
@@ -311,7 +302,7 @@ public class GuildCommand implements CommandExecutor {
                 if (currentGuildIdOptional.isPresent()) {
                     
                     storageManager.removeInvite(playerUuid); 
-                    player.sendMessage(Component.text("You cannot accept this invite because you are already in a guild.", NamedTextColor.RED));
+                    player.sendMessage(miniMessage.deserialize("<red>You cannot accept this invite because you are already in a guild."));
                     return CompletableFuture.completedFuture(null); 
                 }
 
@@ -320,7 +311,7 @@ public class GuildCommand implements CommandExecutor {
                     if (guildOptional.isEmpty()) {
                         
                         storageManager.removeInvite(playerUuid); 
-                        player.sendMessage(Component.text("The guild you were invited to no longer exists.", NamedTextColor.RED));
+                        player.sendMessage(miniMessage.deserialize("<red>The guild you were invited to no longer exists."));
                         return CompletableFuture.completedFuture(null); 
                     }
 
@@ -332,14 +323,12 @@ public class GuildCommand implements CommandExecutor {
                             storageManager.removeInvite(playerUuid)
                     ).thenAccept(v -> {
                         
-                        player.sendMessage(Component.text("You have successfully joined the guild: ", NamedTextColor.GREEN)
-                                .append(Component.text(guildToJoin.getName(), NamedTextColor.GOLD)));
+                        player.sendMessage(miniMessage.deserialize("<green>You have successfully joined the guild: <gold>" + guildToJoin.getName() + "</gold>"));
 
                         
                         Player leader = plugin.getServer().getPlayer(guildToJoin.getLeaderUuid());
                         if (leader != null && leader.isOnline()) {
-                            leader.sendMessage(Component.text(player.getName(), NamedTextColor.AQUA)
-                                    .append(Component.text(" has accepted your guild invite!", NamedTextColor.GREEN)));
+                            leader.sendMessage(miniMessage.deserialize("<aqua>" + player.getName() + "</aqua><green> has accepted your guild invite!</green>"));
                         }
                         
 
@@ -349,7 +338,7 @@ public class GuildCommand implements CommandExecutor {
         }).exceptionally(ex -> {
             plugin.getLogger().severe("Error during guild accept for player " + player.getName() + ": " + ex.getMessage());
             ex.printStackTrace(); 
-            player.sendMessage(Component.text("An error occurred while accepting the invite. Please contact an administrator.", NamedTextColor.RED));
+            player.sendMessage(miniMessage.deserialize("<red>An error occurred while accepting the invite. Please contact an administrator."));
             return null;
         });
     }
@@ -363,7 +352,7 @@ public class GuildCommand implements CommandExecutor {
         UUID senderUuid = player.getUniqueId();
 
         if (args.length != 2) {
-            player.sendMessage(Component.text("Usage: /guild kick <player>", NamedTextColor.RED));
+            player.sendMessage(miniMessage.deserialize("<red>Usage: /guild kick <player>"));
             return;
         }
 
@@ -372,7 +361,7 @@ public class GuildCommand implements CommandExecutor {
         
         storageManager.getPlayerGuildId(senderUuid).thenCompose(guildIdOptional -> {
             if (guildIdOptional.isEmpty()) {
-                player.sendMessage(Component.text("You must be in a guild to kick players.", NamedTextColor.RED));
+                player.sendMessage(miniMessage.deserialize("<red>You must be in a guild to kick players."));
                 return CompletableFuture.completedFuture(null); 
             }
 
@@ -383,7 +372,7 @@ public class GuildCommand implements CommandExecutor {
                 if (guildOptional.isEmpty()) {
                     
                     plugin.getLogger().warning("Guild ID " + guildId + " found for player " + player.getName() + " but guild not found in storage during kick.");
-                    player.sendMessage(Component.text("An internal error occurred trying to find your guild.", NamedTextColor.RED));
+                    player.sendMessage(miniMessage.deserialize("<red>An internal error occurred trying to find your guild."));
                     return CompletableFuture.completedFuture(null);
                 }
 
@@ -391,14 +380,14 @@ public class GuildCommand implements CommandExecutor {
 
                 
                 if (!guild.getLeaderUuid().equals(senderUuid)) {
-                    player.sendMessage(Component.text("Only the guild leader can kick members.", NamedTextColor.RED));
+                    player.sendMessage(miniMessage.deserialize("<red>Only the guild leader can kick members."));
                     return CompletableFuture.completedFuture(null); 
                 }
 
                 
                 Player targetPlayer = plugin.getServer().getPlayerExact(targetPlayerName);
                 if (targetPlayer == null) {
-                    player.sendMessage(Component.text("Player '" + targetPlayerName + "' not found or is offline.", NamedTextColor.RED));
+                    player.sendMessage(miniMessage.deserialize("<red>Player '" + targetPlayerName + "' not found or is offline."));
                     return CompletableFuture.completedFuture(null); 
                 }
 
@@ -406,14 +395,14 @@ public class GuildCommand implements CommandExecutor {
 
                 
                 if (targetUuid.equals(senderUuid)) {
-                    player.sendMessage(Component.text("You cannot kick yourself.", NamedTextColor.RED));
+                    player.sendMessage(miniMessage.deserialize("<red>You cannot kick yourself."));
                     return CompletableFuture.completedFuture(null);
                 }
 
                 
                 return storageManager.isMember(guild.getGuildId(), targetUuid).thenCompose(isMember -> {
                     if (!isMember) {
-                        player.sendMessage(Component.text("Player '" + targetPlayerName + "' is not in your guild.", NamedTextColor.RED));
+                        player.sendMessage(miniMessage.deserialize("<red>Player '" + targetPlayerName + "' is not in your guild."));
                         return CompletableFuture.completedFuture(null); 
                     }
 
@@ -426,18 +415,18 @@ public class GuildCommand implements CommandExecutor {
                         plugin.getServer().getScheduler().runTask(plugin, () -> {
                             if (removed) {
                                 
-                                player.sendMessage(Component.text("Player '" + targetPlayerName + "' has been kicked from your guild.", NamedTextColor.GREEN));
+                                player.sendMessage(miniMessage.deserialize("<green>Player '" + targetPlayerName + "' has been kicked from your guild."));
 
                                 
                                 Player onlineTargetPlayer = plugin.getServer().getPlayer(targetUuid);
                                 if (onlineTargetPlayer != null && onlineTargetPlayer.isOnline()) { 
-                                    onlineTargetPlayer.sendMessage(Component.text("You have been kicked from the guild '" + guild.getName() + "'.", NamedTextColor.RED));
+                                    onlineTargetPlayer.sendMessage(miniMessage.deserialize("<red>You have been kicked from the guild '<gold>" + guild.getName() + "</gold>'"));
                                 }
                                 
                             } else {
                                 
                                 plugin.getLogger().warning("Failed to remove member " + targetUuid + " from guild " + guild.getGuildId() + " after confirming membership.");
-                                player.sendMessage(Component.text("Failed to kick player. They might have left already.", NamedTextColor.YELLOW));
+                                player.sendMessage(miniMessage.deserialize("<yellow>Failed to kick player. They might have left already."));
                             }
                         });
                     });
@@ -446,7 +435,7 @@ public class GuildCommand implements CommandExecutor {
         }).exceptionally(ex -> {
             plugin.getLogger().severe("Error during guild kick for player " + player.getName() + ": " + ex.getMessage());
             ex.printStackTrace(); 
-            player.sendMessage(Component.text("An error occurred while processing the kick command. Please contact an administrator.", NamedTextColor.RED));
+            player.sendMessage(miniMessage.deserialize("<red>An error occurred while processing the kick command. Please contact an administrator."));
             return null;
         });
     }
@@ -459,7 +448,7 @@ public class GuildCommand implements CommandExecutor {
 
         
 
-        player.sendMessage(Component.text("Leave command logic not yet implemented.", NamedTextColor.YELLOW)); 
+        player.sendMessage(miniMessage.deserialize("<yellow>Leave command logic not yet implemented.")); 
     }
 
     
@@ -479,41 +468,41 @@ public class GuildCommand implements CommandExecutor {
 
         
         if (finalDescription.length() > 24) {
-            player.sendMessage(Component.text("Guild description must be 24 characters or less.", NamedTextColor.RED));
+            player.sendMessage(miniMessage.deserialize("<red>Guild description must be 24 characters or less."));
             return;
         }
 
         
         storageManager.getPlayerGuildId(playerUuid).thenCompose(guildIdOpt -> {
             if (guildIdOpt.isEmpty()) {
-                player.sendMessage(Component.text("You are not in a guild.", NamedTextColor.RED));
+                player.sendMessage(miniMessage.deserialize("<red>You are not in a guild."));
                 return CompletableFuture.completedFuture(null);
             }
             UUID guildId = guildIdOpt.get();
             return storageManager.getGuildById(guildId).thenCompose(guildOpt -> {
                 if (guildOpt.isEmpty()) {
-                    player.sendMessage(Component.text("Could not find your guild.", NamedTextColor.RED));
+                    player.sendMessage(miniMessage.deserialize("<red>Could not find your guild."));
                     return CompletableFuture.completedFuture(null);
                 }
                 Guild guild = guildOpt.get();
                 
                 if (!guild.getLeaderUuid().equals(playerUuid)) {
-                    player.sendMessage(Component.text("Only the guild leader can set the description.", NamedTextColor.RED));
+                    player.sendMessage(miniMessage.deserialize("<red>Only the guild leader can set the description."));
                     return CompletableFuture.completedFuture(null);
                 }
                 
                 guild.setDescription(finalDescription.isEmpty() ? null : finalDescription);
                 return storageManager.updateGuild(guild).thenAccept(success -> {
                     if (success) {
-                        player.sendMessage(Component.text("Guild description updated!", NamedTextColor.GREEN));
+                        player.sendMessage(miniMessage.deserialize("<green>Guild description updated!"));
                     } else {
-                        player.sendMessage(Component.text("Failed to update guild description.", NamedTextColor.RED));
+                        player.sendMessage(miniMessage.deserialize("<red>Failed to update guild description."));
                     }
                 });
             });
         }).exceptionally(ex -> {
             plugin.getLogger().log(Level.SEVERE, "Error updating guild description for player " + player.getName(), ex);
-            player.sendMessage(Component.text("An error occurred while updating the description. Please contact an administrator.", NamedTextColor.RED));
+            player.sendMessage(miniMessage.deserialize("<red>An error occurred while updating the description. Please contact an administrator."));
             return null;
         });
     }
@@ -529,14 +518,14 @@ public class GuildCommand implements CommandExecutor {
             String guildName = String.join(" ", java.util.Arrays.copyOfRange(args, 1, args.length));
             storageManager.getGuildByName(guildName).thenCompose(guildOpt -> {
                 if (guildOpt.isEmpty()) {
-                    player.sendMessage(Component.text("Guild not found.", NamedTextColor.RED));
+                    player.sendMessage(miniMessage.deserialize("<red>Guild not found."));
                     return CompletableFuture.completedFuture(null);
                 }
                 Guild guild = guildOpt.get();
                 return sendGuildInfo(player, guild);
             }).exceptionally(ex -> {
                 plugin.getLogger().log(Level.SEVERE, "Error fetching guild info for name: " + guildName, ex);
-                player.sendMessage(Component.text("An error occurred while fetching guild info.", NamedTextColor.RED));
+                player.sendMessage(miniMessage.deserialize("<red>An error occurred while fetching guild info."));
                 return null;
             });
         } else {
@@ -544,13 +533,13 @@ public class GuildCommand implements CommandExecutor {
             UUID playerUuid = player.getUniqueId();
             storageManager.getPlayerGuildId(playerUuid).thenCompose(guildIdOpt -> {
                 if (guildIdOpt.isEmpty()) {
-                    player.sendMessage(Component.text("You are not in a guild.", NamedTextColor.RED));
+                    player.sendMessage(miniMessage.deserialize("<red>You are not in a guild."));
                     return CompletableFuture.completedFuture(null);
                 }
                 UUID guildId = guildIdOpt.get();
                 return storageManager.getGuildById(guildId).thenCompose(guildOpt -> {
                     if (guildOpt.isEmpty()) {
-                        player.sendMessage(Component.text("Could not find your guild.", NamedTextColor.RED));
+                        player.sendMessage(miniMessage.deserialize("<red>Could not find your guild."));
                         return CompletableFuture.completedFuture(null);
                     }
                     Guild guild = guildOpt.get();
@@ -558,7 +547,7 @@ public class GuildCommand implements CommandExecutor {
                 });
             }).exceptionally(ex -> {
                 plugin.getLogger().log(Level.SEVERE, "Error fetching player's own guild info", ex);
-                player.sendMessage(Component.text("An error occurred while fetching your guild info.", NamedTextColor.RED));
+                player.sendMessage(miniMessage.deserialize("<red>An error occurred while fetching your guild info."));
                 return null;
             });
         }
@@ -582,24 +571,18 @@ public class GuildCommand implements CommandExecutor {
         memberNames.sort(String::compareToIgnoreCase);
 
         
-        Component header = Component.text("Guild Info", NamedTextColor.GOLD);
-        Component nameLine = Component.text("Name: ", NamedTextColor.YELLOW).append(Component.text(guild.getName(), NamedTextColor.AQUA));
-        Component leaderLine = Component.text("Leader: ", NamedTextColor.YELLOW).append(Component.text(leaderName, NamedTextColor.AQUA));
+        player.sendMessage(miniMessage.deserialize("<gold>Guild Info"));
+        player.sendMessage(miniMessage.deserialize("<yellow>Name: </yellow><aqua>" + guild.getName() + "</aqua>"));
+        player.sendMessage(miniMessage.deserialize("<yellow>Leader: </yellow><aqua>" + leaderName + "</aqua>"));
         String desc = guild.getDescription();
-        Component descLine = desc != null && !desc.isEmpty() ?
-                Component.text("Description: ", NamedTextColor.YELLOW).append(Component.text(desc, NamedTextColor.WHITE)) :
-                Component.text("Description: ", NamedTextColor.YELLOW).append(Component.text("(none)", NamedTextColor.DARK_GRAY));
-        Component countLine = Component.text("Members: ", NamedTextColor.YELLOW).append(Component.text(memberNames.size(), NamedTextColor.GREEN));
-        Component membersHeader = Component.text("Member List:", NamedTextColor.YELLOW);
-        Component membersList = Component.text(String.join(", ", memberNames), NamedTextColor.WHITE);
-
-        player.sendMessage(header);
-        player.sendMessage(nameLine);
-        player.sendMessage(leaderLine);
-        player.sendMessage(descLine);
-        player.sendMessage(countLine);
-        player.sendMessage(membersHeader);
-        player.sendMessage(membersList);
+        if (desc != null && !desc.isEmpty()) {
+            player.sendMessage(miniMessage.deserialize("<yellow>Description: </yellow><white>" + desc + "</white>"));
+        } else {
+            player.sendMessage(miniMessage.deserialize("<yellow>Description: </yellow><dark_gray>(none)</dark_gray>"));
+        }
+        player.sendMessage(miniMessage.deserialize("<yellow>Members: </yellow><green>" + memberNames.size() + "</green>"));
+        player.sendMessage(miniMessage.deserialize("<yellow>Member List:</yellow>"));
+        player.sendMessage(miniMessage.deserialize("<white>" + String.join(", ", memberNames) + "</white>"));
         return CompletableFuture.completedFuture(null);
     }
 
@@ -612,19 +595,19 @@ public class GuildCommand implements CommandExecutor {
         
         storageManager.getPlayerGuildId(playerUuid).thenCompose(guildIdOpt -> {
             if (guildIdOpt.isEmpty()) {
-                player.sendMessage(Component.text("You are not in a guild.", NamedTextColor.RED));
+                player.sendMessage(miniMessage.deserialize("<red>You are not in a guild."));
                 return CompletableFuture.completedFuture(null);
             }
             UUID guildId = guildIdOpt.get();
             return storageManager.getGuildById(guildId).thenCompose(guildOpt -> {
                 if (guildOpt.isEmpty()) {
-                    player.sendMessage(Component.text("Could not find your guild.", NamedTextColor.RED));
+                    player.sendMessage(miniMessage.deserialize("<red>Could not find your guild."));
                     return CompletableFuture.completedFuture(null);
                 }
                 Guild guild = guildOpt.get();
                 
                 if (!guild.getLeaderUuid().equals(playerUuid)) {
-                    player.sendMessage(Component.text("Only the guild leader can disband the guild.", NamedTextColor.RED));
+                    player.sendMessage(miniMessage.deserialize("<red>Only the guild leader can disband the guild."));
                     return CompletableFuture.completedFuture(null);
                 }
                 
@@ -633,20 +616,14 @@ public class GuildCommand implements CommandExecutor {
                 var confirmation = new Confirmation(playerUuid, "DISBAND_OWN_GUILD", guildId, expiry);
                 return storageManager.addConfirmation(confirmation).thenRun(() -> {
                     
-                    Component confirmMsg = Component.text()
-                        .append(Component.text("Type /guild disband confirm within 30 seconds to disband "))
-                        .append(Component.text(guild.getName(), NamedTextColor.GOLD))
-                        .append(Component.text(". This cannot be undone. "))
-                        .append(Component.text("[Click here to confirm]", NamedTextColor.RED)
-                            .clickEvent(net.kyori.adventure.text.event.ClickEvent.runCommand("/guild disband confirm"))
-                            .hoverEvent(net.kyori.adventure.text.event.HoverEvent.showText(Component.text("Click to confirm disband!"))))
-                        .build();
-                    player.sendMessage(confirmMsg);
+                    String confirmMsg = "Type /guild disband confirm within 30 seconds to disband <gold>" + guild.getName() + "</gold>. This cannot be undone. " +
+                        "<red><click:run_command:'/guild disband confirm'><hover:show_text:'Click to confirm disband!'>[Click here to confirm]</hover></click></red>";
+                    player.sendMessage(miniMessage.deserialize(confirmMsg));
                 });
             });
         }).exceptionally(ex -> {
             plugin.getLogger().log(Level.SEVERE, "Error during disband confirmation for player " + sender.getName(), ex);
-            sender.sendMessage(Component.text("An error occurred while processing the disband command.", NamedTextColor.RED));
+            sender.sendMessage(miniMessage.deserialize("<red>An error occurred while processing the disband command."));
             return null;
         });
     }
@@ -660,7 +637,7 @@ public class GuildCommand implements CommandExecutor {
         
         storageManager.getConfirmation(playerUuid, "DISBAND_OWN_GUILD").thenCompose(confirmationOpt -> {
             if (confirmationOpt.isEmpty()) {
-                player.sendMessage(Component.text("You do not have a pending disband confirmation.", NamedTextColor.RED));
+                player.sendMessage(miniMessage.deserialize("<red>You do not have a pending disband confirmation."));
                 return CompletableFuture.completedFuture(null);
             }
             Confirmation confirmation = confirmationOpt.get();
@@ -668,7 +645,7 @@ public class GuildCommand implements CommandExecutor {
             if (confirmation.timestamp() < now) {
                 
                 storageManager.removeConfirmation(playerUuid);
-                player.sendMessage(Component.text("Your disband confirmation has expired. Please use /guild disband again.", NamedTextColor.RED));
+                player.sendMessage(miniMessage.deserialize("<red>Your disband confirmation has expired. Please use /guild disband again."));
                 return CompletableFuture.completedFuture(null);
             }
             
@@ -676,13 +653,13 @@ public class GuildCommand implements CommandExecutor {
                 
                 return storageManager.getPlayerGuildId(playerUuid).thenCompose(guildIdOpt -> {
                     if (guildIdOpt.isEmpty()) {
-                        player.sendMessage(Component.text("You are not in a guild.", NamedTextColor.RED));
+                        player.sendMessage(miniMessage.deserialize("<red>You are not in a guild."));
                         return CompletableFuture.completedFuture(null);
                     }
                     UUID guildId = guildIdOpt.get();
                     return storageManager.getGuildById(guildId).thenCompose(guildOpt -> {
                         if (guildOpt.isEmpty()) {
-                            player.sendMessage(Component.text("Could not find your guild.", NamedTextColor.RED));
+                            player.sendMessage(miniMessage.deserialize("<red>Could not find your guild."));
                             return CompletableFuture.completedFuture(null);
                         }
                         Guild guild = guildOpt.get();
@@ -691,17 +668,13 @@ public class GuildCommand implements CommandExecutor {
                         
                         return storageManager.deleteGuild(guildId).thenRun(() -> {
                             
-                            player.sendMessage(Component.text("Your guild '", NamedTextColor.GREEN)
-                                .append(Component.text(guild.getName(), NamedTextColor.GOLD))
-                                .append(Component.text("' has been disbanded.", NamedTextColor.GREEN)));
+                            player.sendMessage(miniMessage.deserialize("<green>Your guild '<gold>" + guild.getName() + "</gold>' has been disbanded."));
                             
                             for (UUID memberUuid : memberUuids) {
                                 if (memberUuid.equals(playerUuid)) continue; 
                                 Player member = plugin.getServer().getPlayer(memberUuid);
                                 if (member != null && member.isOnline()) {
-                                    member.sendMessage(Component.text("Your guild '", NamedTextColor.RED)
-                                        .append(Component.text(guild.getName(), NamedTextColor.GOLD))
-                                        .append(Component.text("' has been disbanded by the leader.", NamedTextColor.RED)));
+                                    member.sendMessage(miniMessage.deserialize("<red>Your guild '<gold>" + guild.getName() + "</gold>' has been disbanded by the leader."));
                                 }
                             }
                         });
@@ -710,7 +683,7 @@ public class GuildCommand implements CommandExecutor {
             });
         }).exceptionally(ex -> {
             plugin.getLogger().log(Level.SEVERE, "Error during guild disband confirm for player " + sender.getName(), ex);
-            sender.sendMessage(Component.text("An error occurred while confirming the disband command.", NamedTextColor.RED));
+            sender.sendMessage(miniMessage.deserialize("<red>An error occurred while confirming the disband command."));
             return null;
         });
     }
