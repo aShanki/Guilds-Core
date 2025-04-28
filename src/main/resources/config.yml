@@ -1,0 +1,41 @@
+# Guilds Plugin Configuration
+
+# MySQL Database Connection Settings
+mysql:
+  host: localhost
+  port: 3306
+  database: guilds
+  username: guilds_user
+  password: "secret" # Use quotes if your password contains special characters
+  pool-size: 10 # Recommended: 10
+
+# Guild Settings
+guild:
+  name:
+    min-length: 3
+    max-length: 16
+    # Regex for allowed characters (default: alphanumeric)
+    allowed-characters: "^[a-zA-Z0-9]+$"
+  description:
+    max-length: 24
+  # Invite Settings
+  invites:
+    # Time in seconds before a pending guild invite expires. Default: 3600 (1 hour)
+    expiry-seconds: 3600
+
+# Guild List Command Settings
+list:
+  items-per-page: 10
+
+# PlaceholderAPI Settings
+placeholder:
+  # Default value returned by %guild_name% when a player is not in a guild.
+  no-guild-value: "None"
+
+# --- Additional Settings for Robustness and Customization ---
+# (Added as per TODO.MD step 26)
+
+# Default value for no guild (used in placeholders, etc.)
+default-no-guild-value: "None"
+
+# --- End of config ---
