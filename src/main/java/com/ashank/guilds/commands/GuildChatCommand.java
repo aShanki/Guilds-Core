@@ -3,8 +3,6 @@ package com.ashank.guilds.commands;
 import com.ashank.guilds.Guild;
 import com.ashank.guilds.GuildsPlugin;
 import com.ashank.guilds.data.StorageManager;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -30,11 +28,11 @@ public class GuildChatCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(Component.text("Only players can use guild chat.", NamedTextColor.RED));
+            sender.sendMessage(miniMessage.deserialize("<red>Only players can use guild chat."));
             return true;
         }
         if (args.length == 0) {
-            player.sendMessage(Component.text("Usage: /gc <message>", NamedTextColor.YELLOW));
+            player.sendMessage(miniMessage.deserialize("<yellow>Usage: /gc <message>"));
             return true;
         }
         String message = String.join(" ", args);
@@ -43,13 +41,13 @@ public class GuildChatCommand implements CommandExecutor {
         
         storageManager.getPlayerGuildAsync(playerUuid).whenCompleteAsync((guildOpt, ex) -> {
             if (ex != null) {
-                player.sendMessage(Component.text("An error occurred while checking your guild.", NamedTextColor.RED));
+                player.sendMessage(miniMessage.deserialize("<red>An error occurred while checking your guild."));
                 plugin.getLogger().severe("Error in /gc for player " + player.getName() + ": " + ex.getMessage());
                 ex.printStackTrace();
                 return;
             }
             if (guildOpt.isEmpty()) {
-                player.sendMessage(Component.text("You are not in a guild.", NamedTextColor.RED));
+                player.sendMessage(miniMessage.deserialize("<red>You are not in a guild."));
                 return;
             }
             Guild guild = guildOpt.get();
@@ -60,18 +58,13 @@ public class GuildChatCommand implements CommandExecutor {
                     .filter(p -> p != null && p.isOnline())
                     .collect(Collectors.toSet());
             if (onlineMembers.isEmpty()) {
-                player.sendMessage(Component.text("No online guild members to receive your message.", NamedTextColor.YELLOW));
+                player.sendMessage(miniMessage.deserialize("<yellow>No online guild members to receive your message."));
                 return;
             }
             
-            Component formatted = Component.text()
-                    .append(Component.text("[Guild] ", NamedTextColor.DARK_AQUA))
-                    .append(Component.text(player.getName(), NamedTextColor.AQUA))
-                    .append(Component.text(": ", NamedTextColor.GRAY))
-                    .append(miniMessage.deserialize(message))
-                    .build();
+            String formatted = "<dark_aqua>[Guild] </dark_aqua><aqua>" + player.getName() + "</aqua><gray>: </gray>" + message;
             for (Player member : onlineMembers) {
-                member.sendMessage(formatted);
+                member.sendMessage(miniMessage.deserialize(formatted));
             }
         }, plugin.getServer().getScheduler().getMainThreadExecutor(plugin));
         return true;
