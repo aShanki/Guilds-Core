@@ -1,6 +1,6 @@
 # Guilds Plugin
 
-A modern, customizable Minecraft plugin for managing player guilds. Supports Paper/Spigot 1.21+ and integrates with PlaceholderAPI. Built for performance, flexibility, and ease of use.
+A modern, customizable Minecraft plugin for managing player guilds. Supports Paper/Bukkit 1.21+ and integrates with PlaceholderAPI. Built for performance, flexibility, and ease of use.
 
 ## Features
 
