@@ -35,9 +35,8 @@ public class GuildCommandExecutor implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (args.length == 0) {
-            // TODO: Send help message or usage information
-            sender.sendRichMessage("<red>Usage: /guild <subcommand> [args]</red>");
+        if (args.length == 0 || args[0].equalsIgnoreCase("help")) {
+            sendHelpMessage(sender);
             return true;
         }
 
@@ -742,6 +741,22 @@ public class GuildCommandExecutor implements CommandExecutor {
             plugin.getLogger().log(Level.SEVERE, "Error during admin guild disband confirm for player " + player.getName(), ex);
             return null;
         });
+    }
+
+    private void sendHelpMessage(CommandSender sender) {
+        sender.sendRichMessage("<gold><bold>Guilds Plugin Help</bold></gold>\n" +
+                "<yellow>/guild create <name></yellow> <gray>- Create a new guild</gray>\n" +
+                "<yellow>/guild invite <player></yellow> <gray>- Invite a player</gray>\n" +
+                "<yellow>/guild join <name></yellow> <gray>- Join a guild</gray>\n" +
+                "<yellow>/guild leave</yellow> <gray>- Leave your current guild</gray>\n" +
+                "<yellow>/guild kick <player></yellow> <gray>- Kick a member</gray>\n" +
+                "<yellow>/guild description <text></yellow> <gray>- Set guild description</gray>\n" +
+                "<yellow>/guild info [name]</yellow> <gray>- View info about a guild</gray>\n" +
+                "<yellow>/guild list [page]</yellow> <gray>- List all guilds</gray>\n" +
+                "<yellow>/guild disband</yellow> <gray>- Disband your guild (leader only)</gray>\n" +
+                "<yellow>/guild admin ...</yellow> <gray>- Admin subcommands (rename, wipe description, disband any guild, etc.)</gray>\n" +
+                "<yellow>/gc <message></yellow> <gray>- Send a message to your guild chat</gray>\n" +
+                "<gray>For more info: /guild help</gray>");
     }
 
 } 
