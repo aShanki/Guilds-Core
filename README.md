@@ -17,7 +17,7 @@ A modern, customizable Minecraft plugin for managing player guilds. Supports Pap
 ## Installation
 
 1. Download the plugin JAR and place it in your server's `plugins/` directory.
-2. Ensure you are running Paper/Spigot 1.21 or newer.
+2. Ensure you are running Paper 1.21 or newer.
 3. (Optional) Install [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/) for placeholder support.
 4. Start your server to generate default config files.
 5. Configure the plugin as needed (see below).
