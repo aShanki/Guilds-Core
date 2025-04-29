@@ -63,15 +63,6 @@ test {
     useJUnitPlatform()
 }
 
-processResources {
-    def props = [version: version]
-    inputs.properties props
-    filteringCharset 'UTF-8'
-    filesMatching('plugin.yml') {
-        expand props
-    }
-}
-
 shadowJar {
     archiveFileName.set('guilds-1.0.0.jar')
     manifest {
