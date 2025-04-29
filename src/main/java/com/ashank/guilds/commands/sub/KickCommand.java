@@ -2,7 +2,6 @@ package com.ashank.guilds.commands.sub;
 
 import com.ashank.guilds.Guild;
 import com.ashank.guilds.GuildsPlugin;
-import com.ashank.guilds.data.PlayerData;
 import com.ashank.guilds.data.StorageManager;
 import com.ashank.guilds.managers.Messages;
 import com.mojang.brigadier.Command;
@@ -10,8 +9,6 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.brigadier.suggestion.Suggestions;
-import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
@@ -19,10 +16,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
-
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 
 public class KickCommand {

@@ -7,7 +7,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
+import io.papermc.paper.event.player.AsyncChatEvent;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 import java.util.Set;
 import java.util.UUID;
@@ -24,12 +25,12 @@ public class GuildChatCommand {
         }
 
         @EventHandler
-        public void onPlayerChat(AsyncPlayerChatEvent event) {
+        public void onPlayerChat(AsyncChatEvent event) {
             Player player = event.getPlayer();
             UUID playerUuid = player.getUniqueId();
             if (!com.ashank.guilds.commands.sub.GcCommand.isGuildChatToggled(playerUuid)) return;
-            String message = event.getMessage();
             event.setCancelled(true);
+            String message = PlainTextComponentSerializer.plainText().serialize(event.message());
             storageManager.getPlayerGuildAsync(playerUuid).whenCompleteAsync((guildOpt, ex) -> {
                 if (ex != null) {
                     player.sendMessage(miniMessage.deserialize("<red>An error occurred while checking your guild."));
