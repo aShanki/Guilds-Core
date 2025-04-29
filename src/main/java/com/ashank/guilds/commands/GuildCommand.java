@@ -803,8 +803,10 @@ public class GuildCommand implements CommandExecutor {
                 Guild guild = pageGuilds.get(i);
                 String desc = guild.getDescription();
                 if (desc == null || desc.isEmpty()) desc = "<dark_gray>(no description)</dark_gray>";
+                String guildName = guild.getName();
+                String clickableGuildName = "<click:run_command:'/guild info " + guildName + "'><hover:show_text:'<yellow>Click to view info about this guild!'>" + guildName + "</hover></click>";
                 player.sendMessage(miniMessage.deserialize(
-                    "<yellow>" + (start + i + 1) + ". <aqua>" + guild.getName() + "</aqua> <gray>(" + guild.getMemberUuids().size() + " members)</gray> - " + desc
+                    "<yellow>" + (start + i + 1) + ". <aqua>" + clickableGuildName + "</aqua> <gray>(" + guild.getMemberUuids().size() + " members)</gray> - " + desc
                 ));
             }
             // Navigation
