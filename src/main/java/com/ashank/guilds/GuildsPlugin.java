@@ -57,7 +57,7 @@ public class GuildsPlugin extends JavaPlugin {
                 new com.ashank.guilds.commands.GuildChatCommand.GuildChatListener(this, storageManager), this);
 
             if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-                new com.ashank.guilds.GuildsExpansion(this);
+                new com.ashank.guilds.GuildsExpansion(this).register();
             }
 
         }, getServer().getScheduler().getMainThreadExecutor(this)).exceptionally(ex -> {
