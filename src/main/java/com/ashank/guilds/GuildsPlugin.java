@@ -56,7 +56,6 @@ public class GuildsPlugin extends JavaPlugin {
 
 
             messages = new Messages(this);
-            registerCommands();
 
 
             getServer().getPluginManager().registerEvents(
@@ -77,16 +76,6 @@ public class GuildsPlugin extends JavaPlugin {
         getLogger().info("Guilds plugin enabling process started.");
 
     }
-
-    private void registerCommands() {
-
-        if (getCommand("guild") != null) {
-            getLogger().info("Registered /guild command executor.");
-        } else {
-            getLogger().warning("Could not find 'guild' command in plugin.yml! Command will not work.");
-        }
-    }
-
 
     @Override
     public void onDisable() {
