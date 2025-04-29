@@ -9,16 +9,16 @@ public class Guild {
     private String name;
     private UUID leaderUuid;
     private final Set<UUID> memberUuids;
-    private String description; 
+    private String description;
 
     public Guild(UUID guildId, String name, UUID leaderUuid, Set<UUID> memberUuids, String description) {
         this.guildId = Objects.requireNonNull(guildId, "guildId cannot be null");
         this.name = Objects.requireNonNull(name, "name cannot be null");
         this.leaderUuid = Objects.requireNonNull(leaderUuid, "leaderUuid cannot be null");
         this.memberUuids = Objects.requireNonNull(memberUuids, "memberUuids cannot be null");
-        this.description = description; 
+        this.description = description;
 
-        
+
         if (!memberUuids.contains(leaderUuid)) {
             throw new IllegalArgumentException("Leader must be included in the member set.");
         }
@@ -41,7 +41,7 @@ public class Guild {
     }
 
     public void setLeaderUuid(UUID leaderUuid) {
-        
+
         if (!this.memberUuids.contains(leaderUuid)) {
             throw new IllegalArgumentException("New leader must already be a member of the guild.");
         }
@@ -49,7 +49,7 @@ public class Guild {
     }
 
     public Set<UUID> getMemberUuids() {
-        return memberUuids; 
+        return memberUuids;
     }
 
     public boolean addMember(UUID memberUuid) {
@@ -68,7 +68,7 @@ public class Guild {
     }
 
     public void setDescription(String description) {
-        
+
         this.description = description;
     }
 

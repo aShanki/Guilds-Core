@@ -41,11 +41,11 @@ public class GuildsExpansion extends PlaceholderExpansion {
             return "";
         }
         if (params.equalsIgnoreCase("name")) {
-            
-            
+
+
             try {
                 CompletableFuture<String> future = storageManager.getGuildNameForPlayer(player.getUniqueId());
-                String guildName = future.get(); 
+                String guildName = future.get();
                 return guildName != null ? guildName : plugin.getConfig().getString("placeholder.no_guild", "None");
             } catch (Exception e) {
                 plugin.getLogger().warning("Failed to fetch guild name for placeholder: " + e.getMessage());
