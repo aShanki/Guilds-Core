@@ -62,7 +62,16 @@ public class GuildsPlugin extends JavaPlugin {
                 new com.ashank.guilds.commands.GuildChatCommand.GuildChatListener(this, storageManager), this);
 
             if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-                new com.ashank.guilds.GuildsExpansion(this).register();
+                try {
+                    Class<?> expansionClass = Class.forName("com.ashank.guilds.GuildsExpansion");
+                    Object expansion = expansionClass.getConstructor(GuildsPlugin.class).newInstance(this);
+                    expansionClass.getMethod("register").invoke(expansion);
+                    getLogger().info("GuildsExpansion registered with PlaceholderAPI.");
+                } catch (ClassNotFoundException e) {
+                    getLogger().warning("GuildsExpansion class not found. PlaceholderAPI integration will be skipped.");
+                } catch (Throwable t) {
+                    getLogger().warning("Failed to register GuildsExpansion with PlaceholderAPI: " + t.getMessage());
+                }
             }
 
         }, getServer().getScheduler().getMainThreadExecutor(this)).exceptionally(ex -> {
