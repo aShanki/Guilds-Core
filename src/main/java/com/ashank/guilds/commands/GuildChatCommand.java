@@ -11,6 +11,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -19,6 +20,7 @@ public class GuildChatCommand implements CommandExecutor {
     private final GuildsPlugin plugin;
     private final StorageManager storageManager;
     private final MiniMessage miniMessage = MiniMessage.miniMessage();
+    private static final Set<UUID> toggledGuildChat = new HashSet<>();
 
     public GuildChatCommand(GuildsPlugin plugin, StorageManager storageManager) {
         this.plugin = plugin;
@@ -32,7 +34,14 @@ public class GuildChatCommand implements CommandExecutor {
             return true;
         }
         if (args.length == 0) {
-            player.sendMessage(miniMessage.deserialize("<yellow>Usage: /gc <message>"));
+            UUID playerUuid = player.getUniqueId();
+            if (toggledGuildChat.contains(playerUuid)) {
+                toggledGuildChat.remove(playerUuid);
+                player.sendMessage(miniMessage.deserialize("<gray>You have <red>disabled</red> guild chat mode."));
+            } else {
+                toggledGuildChat.add(playerUuid);
+                player.sendMessage(miniMessage.deserialize("<gray>You have <green>enabled</green> guild chat mode. All your messages will go to guild chat until you run <yellow>/gc</yellow> again."));
+            }
             return true;
         }
         String message = String.join(" ", args);
