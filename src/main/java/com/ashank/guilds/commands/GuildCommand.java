@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.Map;
+import java.util.List;
 
 public class GuildCommand implements CommandExecutor {
 
@@ -77,6 +78,9 @@ public class GuildCommand implements CommandExecutor {
                     return true;
                 case "help":
                     sendHelpMessage(sender);
+                    return true;
+                case "list":
+                    handleListCommand(sender, args);
                     return true;
                 default:
                     sender.sendMessage(messages.get("guild.usage", Map.of("usage", "/guild <create|invite|accept|kick|...> [args]")));
@@ -754,6 +758,72 @@ public class GuildCommand implements CommandExecutor {
         }).exceptionally(ex -> {
             plugin.getLogger().log(Level.SEVERE, "Error during guild disband confirm for player " + sender.getName(), ex);
             sender.sendMessage(miniMessage.deserialize("<red>An error occurred while confirming the disband command."));
+            return null;
+        });
+    }
+
+    
+    private void handleListCommand(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender, "guild.onlyPlayers");
+        if (player == null) return;
+
+        int page = 1;
+        if (args.length > 1) {
+            try {
+                page = Integer.parseInt(args[1]);
+                if (page < 1) page = 1;
+            } catch (NumberFormatException ignored) {
+                player.sendMessage(miniMessage.deserialize("<red>Usage: /guild list [page]"));
+                return;
+            }
+        }
+        final int pageSize = 10;
+        final int currentPage = page;
+
+        storageManager.getAllGuilds().thenAccept(guilds -> {
+            if (guilds.isEmpty()) {
+                player.sendMessage(miniMessage.deserialize("<yellow>No guilds found."));
+                return;
+            }
+            // Sort by member count descending
+            guilds.sort((g1, g2) -> Integer.compare(g2.getMemberUuids().size(), g1.getMemberUuids().size()));
+
+            int totalGuilds = guilds.size();
+            int totalPages = (int) Math.ceil((double) totalGuilds / pageSize);
+            if (currentPage > totalPages) {
+                player.sendMessage(miniMessage.deserialize("<red>Page does not exist. There are only <yellow>" + totalPages + "</yellow> pages."));
+                return;
+            }
+            int start = (currentPage - 1) * pageSize;
+            int end = Math.min(start + pageSize, totalGuilds);
+            java.util.List<Guild> pageGuilds = guilds.subList(start, end);
+
+            player.sendMessage(miniMessage.deserialize("<gold><bold>Guild List</bold></gold> <gray>(Page " + currentPage + "/" + totalPages + ")</gray>"));
+            for (int i = 0; i < pageGuilds.size(); i++) {
+                Guild guild = pageGuilds.get(i);
+                String desc = guild.getDescription();
+                if (desc == null || desc.isEmpty()) desc = "<dark_gray>(no description)</dark_gray>";
+                player.sendMessage(miniMessage.deserialize(
+                    "<yellow>" + (start + i + 1) + ". <aqua>" + guild.getName() + "</aqua> <gray>(" + guild.getMemberUuids().size() + " members)</gray> - " + desc
+                ));
+            }
+            // Navigation
+            StringBuilder nav = new StringBuilder();
+            if (currentPage > 1) {
+                nav.append("<green><click:run_command:'/guild list " + (currentPage - 1) + "'><< Prev</click></green> ");
+            } else {
+                nav.append("<gray><< Prev</gray> ");
+            }
+            nav.append("<gray>|</gray> ");
+            if (currentPage < totalPages) {
+                nav.append("<green><click:run_command:'/guild list " + (currentPage + 1) + "'>Next >></click></green>");
+            } else {
+                nav.append("<gray>Next >></gray>");
+            }
+            player.sendMessage(miniMessage.deserialize(nav.toString()));
+        }).exceptionally(ex -> {
+            plugin.getLogger().log(Level.SEVERE, "Error fetching guild list for player " + sender.getName(), ex);
+            player.sendMessage(miniMessage.deserialize("<red>An error occurred while fetching the guild list."));
             return null;
         });
     }
