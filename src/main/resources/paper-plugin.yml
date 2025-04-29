@@ -1,0 +1,8 @@
+name: Guilds
+version: 1.0.0
+bootstrapper: com.ashank.guilds.GuildsPluginBootstrap
+main: com.ashank.guilds.GuildsPlugin
+api-version: '1.21'
+author: Ashank
+dependencies:
+  - PlaceholderAPI 
