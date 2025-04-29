@@ -6,8 +6,6 @@ import com.ashank.guilds.data.StorageManager;
 import com.ashank.guilds.data.PendingInvite;
 import com.ashank.guilds.data.Confirmation;
 import com.ashank.guilds.managers.Messages;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -85,7 +83,7 @@ public class GuildCommand implements CommandExecutor {
                     return true;
             }
         } else {
-            sender.sendMessage(messages.get("guild.usage", Map.of("usage", "/guild <subcommand> [args]")));
+            sendHelpMessage(sender);
             return true;
         }
     }
@@ -442,13 +440,85 @@ public class GuildCommand implements CommandExecutor {
 
     
     private void handleLeaveCommand(CommandSender sender, String[] args) {
-        
         Player player = requirePlayer(sender, "guild.onlyPlayers");
         if (player == null) return;
+        UUID playerUuid = player.getUniqueId();
 
-        
+        storageManager.getPlayerGuildId(playerUuid).thenCompose(guildIdOpt -> {
+            if (guildIdOpt.isEmpty()) {
+                player.sendMessage(miniMessage.deserialize("<red>You are not in a guild."));
+                return CompletableFuture.completedFuture(null);
+            }
+            UUID guildId = guildIdOpt.get();
+            return storageManager.getGuildById(guildId).thenCompose(guildOpt -> {
+                if (guildOpt.isEmpty()) {
+                    player.sendMessage(miniMessage.deserialize("<red>Could not find your guild."));
+                    return CompletableFuture.completedFuture(null);
+                }
+                Guild guild = guildOpt.get();
+                Set<UUID> members = new HashSet<>(guild.getMemberUuids());
 
-        player.sendMessage(miniMessage.deserialize("<yellow>Leave command logic not yet implemented.")); 
+                if (guild.getLeaderUuid().equals(playerUuid)) {
+                    // Leader is leaving
+                    if (members.size() == 1) {
+                        // Only member, disband
+                        return storageManager.deleteGuild(guildId).thenRun(() -> {
+                            player.sendMessage(miniMessage.deserialize("<green>You have left and disbanded your guild '<gold>" + guild.getName() + "</gold>'."));
+                        });
+                    } else {
+                        // Promote a new leader (pick any other member)
+                        UUID newLeader = members.stream().filter(uuid -> !uuid.equals(playerUuid)).findFirst().orElse(null);
+                        if (newLeader == null) {
+                            player.sendMessage(miniMessage.deserialize("<red>Could not find a new leader. Please contact an administrator."));
+                            return CompletableFuture.completedFuture(null);
+                        }
+                        guild.setLeaderUuid(newLeader);
+                        // Remove the old leader
+                        return storageManager.updateGuild(guild).thenCompose(success -> {
+                            if (!success) {
+                                player.sendMessage(miniMessage.deserialize("<red>Failed to update guild leader. Please contact an administrator."));
+                                return CompletableFuture.completedFuture(null);
+                            }
+                            return storageManager.removeGuildMember(guildId, playerUuid).thenAccept(removed -> {
+                                player.sendMessage(miniMessage.deserialize("<green>You have left your guild '<gold>" + guild.getName() + "</gold>'. <gray>Leadership has been transferred.</gray>"));
+                                // Notify new leader and members
+                                for (UUID memberUuid : members) {
+                                    if (memberUuid.equals(playerUuid)) continue;
+                                    Player member = plugin.getServer().getPlayer(memberUuid);
+                                    if (member != null && member.isOnline()) {
+                                        if (memberUuid.equals(newLeader)) {
+                                            member.sendMessage(miniMessage.deserialize("<yellow>You are now the leader of '<gold>" + guild.getName() + "</gold>'!"));
+                                        }
+                                        member.sendMessage(miniMessage.deserialize("<yellow>" + player.getName() + " has left the guild."));
+                                    }
+                                }
+                            });
+                        });
+                    }
+                } else {
+                    // Regular member leaving
+                    return storageManager.removeGuildMember(guildId, playerUuid).thenAccept(removed -> {
+                        if (removed) {
+                            player.sendMessage(miniMessage.deserialize("<green>You have left your guild '<gold>" + guild.getName() + "</gold>'."));
+                            // Notify online members
+                            for (UUID memberUuid : members) {
+                                if (memberUuid.equals(playerUuid)) continue;
+                                Player member = plugin.getServer().getPlayer(memberUuid);
+                                if (member != null && member.isOnline()) {
+                                    member.sendMessage(miniMessage.deserialize("<yellow>" + player.getName() + " has left the guild."));
+                                }
+                            }
+                        } else {
+                            player.sendMessage(miniMessage.deserialize("<red>Failed to leave the guild. Please contact an administrator."));
+                        }
+                    });
+                }
+            });
+        }).exceptionally(ex -> {
+            plugin.getLogger().log(Level.SEVERE, "Error during guild leave for player " + sender.getName(), ex);
+            sender.sendMessage(miniMessage.deserialize("<red>An error occurred while processing the leave command."));
+            return null;
+        });
     }
 
     
