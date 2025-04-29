@@ -5,4 +5,8 @@ main: com.ashank.guilds.GuildsPlugin
 api-version: '1.21'
 author: Ashank 
 dependencies:
-  - PlaceholderAPI 
+  server:
+    PlaceholderAPI:
+      load: BEFORE
+      required: true
+      join-classpath: true 
