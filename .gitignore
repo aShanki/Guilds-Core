@@ -36,3 +36,4 @@ target/
 
 # Debug logs
 *.log 
+.roorules
