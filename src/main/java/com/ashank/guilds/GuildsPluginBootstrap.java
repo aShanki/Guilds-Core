@@ -8,17 +8,17 @@ import org.jetbrains.annotations.NotNull;
 public class GuildsPluginBootstrap implements PluginBootstrap {
     @Override
     public void bootstrap(@NotNull BootstrapContext context) {
-        // Load config and initialize storage/database here
-        // This is called before the server starts
-        // (No access to Bukkit API, but can access files)
-        // No-op for now, as config and DB require Bukkit context
+        
+        
+        
+        
     }
 
     @Override
     public @NotNull GuildsPlugin createPlugin(@NotNull PluginProviderContext context) {
-        // Construct and return the main plugin instance
+        
         GuildsPlugin plugin = new GuildsPlugin();
-        // Move registration logic from onEnable to here
+        
         plugin.saveDefaultConfig();
         plugin.reloadConfig();
         plugin.setStorageManager(new com.ashank.guilds.data.StorageManager(plugin));

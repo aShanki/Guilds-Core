@@ -21,7 +21,7 @@ public class GuildsPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        // All registration is now handled by the bootstrapper (GuildsPluginBootstrap.java)
+        
         getLogger().info("Guilds plugin enabling process started (bootstrapper handles registration).");
     }
 
