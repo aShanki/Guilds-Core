@@ -5,9 +5,13 @@ api-version: '1.21'
 author: Ashank
 softdepend: [PlaceholderAPI]
 commands:
-#  gc:
-#    description: Guild chat for members of your guild.
-#    usage: /gc <message>
+  guild:
+    description: Main command for managing guilds
+    usage: /guild <subcommand>
+    aliases: [g]
+  gc:
+    description: Guild chat for members of your guild.
+    usage: /gc <message>
 permissions:
   guilds.admin:
     description: Allows use of all admin guild commands (rename, wipe description, disband any guild, etc.)
