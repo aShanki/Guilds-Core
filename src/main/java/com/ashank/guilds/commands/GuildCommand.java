@@ -22,7 +22,6 @@ import java.util.regex.Pattern;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.Map;
-import java.util.List;
 
 public class GuildCommand implements CommandExecutor {
 

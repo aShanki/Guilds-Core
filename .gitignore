@@ -2,6 +2,7 @@
 /.gradle/
 /gradle/
 gradlew*
+TODO.MD
 
 /build/
 /out/
