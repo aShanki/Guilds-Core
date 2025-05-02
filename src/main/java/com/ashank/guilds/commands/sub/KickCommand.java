@@ -58,13 +58,13 @@ public class KickCommand {
         UUID targetId = targetPlayer.getUniqueId();
 
         if (senderId.equals(targetId)) {
-            player.sendMessage(MiniMessage.miniMessage().deserialize(messages.get("guild.cannot_kick_self")));
+            player.sendMessage(MiniMessage.miniMessage().deserialize(messages.get("cannot_kick_self")));
             return Command.SINGLE_SUCCESS;
         }
 
         storageManager.getPlayerGuildAsync(senderId).thenAcceptAsync(senderGuildOpt -> {
             if (senderGuildOpt.isEmpty()) {
-                player.sendMessage(MiniMessage.miniMessage().deserialize(messages.get("guild.not_in_guild")));
+                player.sendMessage(MiniMessage.miniMessage().deserialize(messages.get("not_in_guild")));
                 return;
             }
 
@@ -72,45 +72,45 @@ public class KickCommand {
             UUID senderGuildId = senderGuild.getGuildId();
 
             if (!senderGuild.getLeaderUuid().equals(senderId)) {
-                player.sendMessage(MiniMessage.miniMessage().deserialize(messages.get("guild.not_leader")));
+                player.sendMessage(MiniMessage.miniMessage().deserialize(messages.get("not_leader")));
                 return;
             }
 
             storageManager.getPlayerGuildId(targetId).thenAcceptAsync(targetGuildIdOpt -> {
                 if (targetGuildIdOpt.isEmpty() || !targetGuildIdOpt.get().equals(senderGuildId)) {
-                    player.sendMessage(MiniMessage.miniMessage().deserialize(messages.get("guild.player_not_in_your_guild"),
+                    player.sendMessage(MiniMessage.miniMessage().deserialize(messages.get("player_not_in_your_guild"),
                             Placeholder.unparsed("player", targetPlayer.getName())));
                     return;
                 }
 
                 storageManager.removeGuildMember(senderGuildId, targetId).thenAccept(success -> {
                     if (success) {
-                        player.sendMessage(MiniMessage.miniMessage().deserialize(messages.get("guild.member_kicked"),
+                        player.sendMessage(MiniMessage.miniMessage().deserialize(messages.get("member_kicked"),
                                 Placeholder.unparsed("player", targetPlayer.getName())));
                         if (targetPlayer.isOnline()) {
-                            targetPlayer.sendMessage(MiniMessage.miniMessage().deserialize(messages.get("guild.you_were_kicked_by"),
+                            targetPlayer.sendMessage(MiniMessage.miniMessage().deserialize(messages.get("you_were_kicked_by"),
                                     Placeholder.unparsed("kicker", player.getName())));
                         }
                     } else {
-                        player.sendMessage(MiniMessage.miniMessage().deserialize(messages.get("guild.error")));
+                        player.sendMessage(MiniMessage.miniMessage().deserialize(messages.get("error")));
                         plugin.getLogger().warning("Failed to remove player " + targetId + " from guild " + senderGuildId + " during kick operation (removeGuildMember returned false).");
                     }
                 }).exceptionally(ex -> {
-                    player.sendMessage(MiniMessage.miniMessage().deserialize(messages.get("guild.error")));
+                    player.sendMessage(MiniMessage.miniMessage().deserialize(messages.get("error")));
                     plugin.getLogger().severe("Error removing guild member during kick: " + ex.getMessage());
                     ex.printStackTrace();
                     return null;
                 });
 
             }).exceptionally(ex -> {
-                player.sendMessage(MiniMessage.miniMessage().deserialize(messages.get("guild.error")));
+                player.sendMessage(MiniMessage.miniMessage().deserialize(messages.get("error")));
                 plugin.getLogger().severe("Error fetching target player guild ID for kick: " + ex.getMessage());
                 ex.printStackTrace();
                 return null;
             });
 
         }).exceptionally(ex -> {
-            player.sendMessage(MiniMessage.miniMessage().deserialize(messages.get("guild.error")));
+            player.sendMessage(MiniMessage.miniMessage().deserialize(messages.get("error")));
             plugin.getLogger().severe("Error fetching sender guild data for kick: " + ex.getMessage());
             ex.printStackTrace();
             return null;

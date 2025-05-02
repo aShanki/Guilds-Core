@@ -40,7 +40,7 @@ public class InfoCommand {
     private static int executeInfo(CommandContext<CommandSourceStack> context) {
         CommandSender sender = context.getSource().getSender();
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(plugin.getMessages().get("guild.onlyPlayers"));
+            sender.sendMessage(plugin.getMessages().get("command_player_only"));
             return Command.SINGLE_SUCCESS;
         }
 
@@ -71,7 +71,7 @@ public class InfoCommand {
     private static int executeInfoWithName(CommandContext<CommandSourceStack> context) {
         CommandSender sender = context.getSource().getSender();
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(plugin.getMessages().get("guild.onlyPlayers"));
+            sender.sendMessage(plugin.getMessages().get("command_player_only"));
             return Command.SINGLE_SUCCESS;
         }
 

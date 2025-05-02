@@ -34,28 +34,28 @@ public class LeaveCommand {
         UUID playerUuid = player.getUniqueId();
         storageManager.getPlayerGuildAsync(playerUuid).thenAcceptAsync(guildOptional -> {
             if (guildOptional.isEmpty()) {
-                player.sendMessage(miniMessage.deserialize(messages.get("guild.not_in_guild")));
+                player.sendMessage(miniMessage.deserialize(messages.get("not_in_guild")));
                 return;
             }
             var guild = guildOptional.get();
             if (guild.getLeaderUuid().equals(playerUuid) && guild.getMemberUuids().size() > 1) {
-                player.sendMessage(miniMessage.deserialize(messages.get("guild.leader_must_transfer_or_disband")));
+                player.sendMessage(miniMessage.deserialize(messages.get("leader_must_transfer_or_disband")));
                 return;
             }
             storageManager.removeGuildMember(guild.getGuildId(), playerUuid).thenAccept(success -> {
                 if (success) {
-                    player.sendMessage(miniMessage.deserialize(messages.get("guild.left")));
+                    player.sendMessage(miniMessage.deserialize(messages.get("left")));
                 } else {
-                    player.sendMessage(miniMessage.deserialize(messages.get("guild.error")));
+                    player.sendMessage(miniMessage.deserialize(messages.get("error")));
                 }
             }).exceptionally(ex -> {
                 plugin.getLogger().severe("Error removing player from guild: " + ex.getMessage());
-                player.sendMessage(miniMessage.deserialize(messages.get("guild.error")));
+                player.sendMessage(miniMessage.deserialize(messages.get("error")));
                 return null;
             });
         }).exceptionally(ex -> {
             plugin.getLogger().severe("Error fetching guild for leave: " + ex.getMessage());
-            player.sendMessage(miniMessage.deserialize(messages.get("guild.error")));
+            player.sendMessage(miniMessage.deserialize(messages.get("error")));
             return null;
         });
         return Command.SINGLE_SUCCESS;

@@ -47,7 +47,7 @@ public class DescriptionCommand {
         
         storageManager.getPlayerGuildAsync(playerUuid).thenAcceptAsync(guildOptional -> {
             if (guildOptional.isEmpty()) {
-                player.sendMessage(miniMessage.deserialize(messages.get("guild.not_in_guild")));
+                player.sendMessage(miniMessage.deserialize(messages.get("not_in_guild")));
                 return;
             }
 
@@ -55,13 +55,13 @@ public class DescriptionCommand {
 
             
             if (!guild.getLeaderUuid().equals(playerUuid)) {
-                player.sendMessage(miniMessage.deserialize(messages.get("guild.not_leader")));
+                player.sendMessage(miniMessage.deserialize(messages.get("not_leader")));
                 return;
             }
 
             if (descriptionText.length() > MAX_DESCRIPTION_LENGTH) {
                 
-                player.sendMessage(miniMessage.deserialize(messages.get("guild.description_too_long"),
+                player.sendMessage(miniMessage.deserialize(messages.get("description_too_long"),
                         Placeholder.unparsed("max", String.valueOf(MAX_DESCRIPTION_LENGTH))));
                 return;
             }
@@ -70,19 +70,19 @@ public class DescriptionCommand {
             guild.setDescription(descriptionText);
             storageManager.updateGuild(guild).thenAcceptAsync(success -> {
                 if (success) {
-                    player.sendMessage(miniMessage.deserialize(messages.get("guild.description_set"),
+                    player.sendMessage(miniMessage.deserialize(messages.get("description_set"),
                             Placeholder.unparsed("description", descriptionText)));
                 } else {
-                    player.sendMessage(miniMessage.deserialize(messages.get("guild.error"))); 
+                    player.sendMessage(miniMessage.deserialize(messages.get("error"))); 
                 }
             }).exceptionally(ex -> { 
                 plugin.getLogger().severe("Error updating guild description for " + guild.getName() + ": " + ex.getMessage());
-                player.sendMessage(miniMessage.deserialize(messages.get("guild.error")));
+                player.sendMessage(miniMessage.deserialize(messages.get("error")));
                 return null;
             });
         }).exceptionally(ex -> { 
             plugin.getLogger().severe("Error fetching guild for player " + playerUuid + ": " + ex.getMessage());
-            player.sendMessage(miniMessage.deserialize(messages.get("guild.error")));
+            player.sendMessage(miniMessage.deserialize(messages.get("error")));
             return null;
         });
 

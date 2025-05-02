@@ -62,12 +62,12 @@ public class InviteCommand {
         UUID targetUuid = target.getUniqueId();
         storageManager.getPlayerGuildAsync(playerUuid).thenAcceptAsync(guildOptional -> {
             if (guildOptional.isEmpty()) {
-                player.sendMessage(miniMessage.deserialize(messages.get("guild.not_in_guild")));
+                player.sendMessage(miniMessage.deserialize(messages.get("not_in_guild")));
                 return;
             }
             var guild = guildOptional.get();
             if (!guild.getLeaderUuid().equals(playerUuid)) {
-                player.sendMessage(miniMessage.deserialize(messages.get("guild.not_leader")));
+                player.sendMessage(miniMessage.deserialize(messages.get("not_leader")));
                 return;
             }
             storageManager.getPlayerGuildAsync(targetUuid).thenAcceptAsync(targetGuildOpt -> {
@@ -80,12 +80,12 @@ public class InviteCommand {
                 target.sendMessage(miniMessage.deserialize(messages.get("invite_received")));
             }).exceptionally(ex -> {
                 plugin.getLogger().severe("Error checking target guild for invite: " + ex.getMessage());
-                player.sendMessage(miniMessage.deserialize(messages.get("guild.error")));
+                player.sendMessage(miniMessage.deserialize(messages.get("error")));
                 return null;
             });
         }).exceptionally(ex -> {
             plugin.getLogger().severe("Error fetching guild for invite: " + ex.getMessage());
-            player.sendMessage(miniMessage.deserialize(messages.get("guild.error")));
+            player.sendMessage(miniMessage.deserialize(messages.get("error")));
             return null;
         });
         return Command.SINGLE_SUCCESS;

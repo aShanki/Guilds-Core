@@ -48,11 +48,11 @@ public class ListCommand {
             Map<String, String> headerPlaceholders = new HashMap<>();
             headerPlaceholders.put("page", String.valueOf(page));
             headerPlaceholders.put("pages", String.valueOf(Math.max(1, totalPages)));
-            sender.sendMessage(miniMessage.deserialize(plugin.getMessages().get("guild.list_header", headerPlaceholders)));
+            sender.sendMessage(miniMessage.deserialize(plugin.getMessages().get("list_header", headerPlaceholders)));
 
             
             if (guilds.isEmpty()) {
-                sender.sendMessage(miniMessage.deserialize(plugin.getMessages().get("guild.list_empty", new HashMap<>())));
+                sender.sendMessage(miniMessage.deserialize(plugin.getMessages().get("list_empty", new HashMap<>())));
                 return;
             }
 
@@ -62,11 +62,11 @@ public class ListCommand {
                 Map<String, String> entryPlaceholders = new HashMap<>();
                 entryPlaceholders.put("guild", guild.getName());
                 entryPlaceholders.put("count", String.valueOf(guild.getMemberUuids().size()));
-                sender.sendMessage(miniMessage.deserialize(plugin.getMessages().get("guild.list_entry", entryPlaceholders)));
+                sender.sendMessage(miniMessage.deserialize(plugin.getMessages().get("list_entry", entryPlaceholders)));
             }
         }).exceptionally(throwable -> {
             MiniMessage miniMessage = MiniMessage.miniMessage();
-            sender.sendMessage(miniMessage.deserialize(plugin.getMessages().get("guild.error")));
+            sender.sendMessage(miniMessage.deserialize(plugin.getMessages().get("error")));
             plugin.getLogger().severe("Error while listing guilds: " + throwable.getMessage());
             throwable.printStackTrace();
             return null;
