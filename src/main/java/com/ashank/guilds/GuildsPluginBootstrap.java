@@ -20,8 +20,8 @@ public class GuildsPluginBootstrap implements PluginBootstrap {
         plugin.saveDefaultConfig();
         plugin.reloadConfig();
         plugin.setStorageManager(new com.ashank.guilds.data.StorageManager(plugin));
+        plugin.setMessages(new com.ashank.guilds.managers.Messages(plugin));
 
-        
         plugin.getLifecycleManager().registerEventHandler(io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents.COMMANDS, event -> {
             plugin.getStorageManager().initializeDataSource().thenRunAsync(() -> {
                 plugin.getLogger().info("StorageManager initialized and migrations run.");
@@ -41,7 +41,6 @@ public class GuildsPluginBootstrap implements PluginBootstrap {
                         });
                 }, cleanupIntervalTicks, cleanupIntervalTicks));
                 plugin.getLogger().info("Scheduled expired invite cleanup task.");
-                plugin.setMessages(new com.ashank.guilds.managers.Messages(plugin));
                 plugin.getServer().getPluginManager().registerEvents(
                     new com.ashank.guilds.commands.GuildChatCommand.GuildChatListener(plugin, plugin.getStorageManager()), plugin);
                 if (org.bukkit.Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
