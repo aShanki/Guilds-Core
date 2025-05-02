@@ -65,6 +65,7 @@ public class GuildsPluginBootstrap implements PluginBootstrap {
 
         plugin.getLifecycleManager().registerEventHandler(io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents.COMMANDS, event -> {
             event.registrar().register(com.ashank.guilds.commands.GuildCommandTree.build(plugin), "guild", java.util.List.of("g"));
+            event.registrar().register(com.ashank.guilds.commands.sub.GcCommand.build(plugin).build(), "Guild chat command for your guild", java.util.List.of());
         });
         plugin.getLogger().info("Guilds plugin enabling process started.");
         return plugin;
