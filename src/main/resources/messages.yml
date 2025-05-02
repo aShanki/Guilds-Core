@@ -35,7 +35,6 @@ admin_description_wiped: "<green>Guild description wiped."
 admin_disbanded: "<red>Guild has been disbanded by an admin."
 leave_leader_deny: "<red>As the guild leader, you must disband the guild instead of leaving it. Use /guild disband."
 left_notify: "<yellow><player> has left your guild."
-onlyPlayers: "<red>Only players can use this command."
 leader_must_transfer_or_disband: "<red>As the guild leader, you must transfer leadership or disband the guild before leaving."
 help: |
   <gold><bold>Guilds Plugin Help</bold></gold>
