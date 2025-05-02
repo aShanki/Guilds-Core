@@ -24,7 +24,8 @@ public class DisbandCommand {
 
         return LiteralArgumentBuilder.<CommandSourceStack>literal("disband")
                 .requires(source -> source.getSender() instanceof Player && source.getSender().hasPermission("guilds.command.disband"))
-                .executes(context -> executeDisband(context, plugin, storageManager, messages, miniMessage));
+                .executes(context -> executeDisband(context, plugin, storageManager, messages, miniMessage))
+                .then(com.ashank.guilds.commands.sub.DisbandConfirmCommand.build(plugin));
     }
 
     private static int executeDisband(CommandContext<CommandSourceStack> context, GuildsPlugin plugin,

@@ -9,7 +9,6 @@ import com.ashank.guilds.commands.sub.InviteCommand;
 import com.ashank.guilds.commands.sub.KickCommand;
 import com.ashank.guilds.commands.sub.LeaveCommand;
 import com.ashank.guilds.commands.sub.DisbandCommand;
-import com.ashank.guilds.commands.sub.DisbandConfirmCommand;
 import com.ashank.guilds.commands.sub.HelpCommand;
 import com.ashank.guilds.commands.sub.ListCommand;
 import com.ashank.guilds.commands.sub.GcCommand;
@@ -34,7 +33,6 @@ public final class GuildCommandTree {
             .then(DescriptionCommand.build(plugin))
             .then(InfoCommand.build(plugin))
             .then(DisbandCommand.build(plugin))
-            .then(DisbandConfirmCommand.build(plugin))
             .then(HelpCommand.build(plugin))
             .then(ListCommand.build(plugin))
             .then(GcCommand.build(plugin))
