@@ -10,6 +10,7 @@ import com.mojang.brigadier.context.CommandContext;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +34,7 @@ public class ListCommand {
         CommandSender sender = context.getSource().getSender();
 
         plugin.getStorageManager().getAllGuilds().thenAccept(guilds -> {
+            MiniMessage miniMessage = MiniMessage.miniMessage();
             int totalPages = Math.max(1, (guilds.size() + GUILDS_PER_PAGE - 1) / GUILDS_PER_PAGE);
             
             
@@ -46,11 +48,11 @@ public class ListCommand {
             Map<String, String> headerPlaceholders = new HashMap<>();
             headerPlaceholders.put("page", String.valueOf(page));
             headerPlaceholders.put("pages", String.valueOf(Math.max(1, totalPages)));
-            sender.sendMessage(plugin.getMessages().get("guild.list_header", headerPlaceholders));
+            sender.sendMessage(miniMessage.deserialize(plugin.getMessages().get("guild.list_header", headerPlaceholders)));
 
             
             if (guilds.isEmpty()) {
-                sender.sendMessage(plugin.getMessages().get("guild.list_empty", new HashMap<>()));
+                sender.sendMessage(miniMessage.deserialize(plugin.getMessages().get("guild.list_empty", new HashMap<>())));
                 return;
             }
 
@@ -60,10 +62,11 @@ public class ListCommand {
                 Map<String, String> entryPlaceholders = new HashMap<>();
                 entryPlaceholders.put("guild", guild.getName());
                 entryPlaceholders.put("count", String.valueOf(guild.getMemberUuids().size()));
-                sender.sendMessage(plugin.getMessages().get("guild.list_entry", entryPlaceholders));
+                sender.sendMessage(miniMessage.deserialize(plugin.getMessages().get("guild.list_entry", entryPlaceholders)));
             }
         }).exceptionally(throwable -> {
-            sender.sendMessage(plugin.getMessages().get("guild.error"));
+            MiniMessage miniMessage = MiniMessage.miniMessage();
+            sender.sendMessage(miniMessage.deserialize(plugin.getMessages().get("guild.error")));
             plugin.getLogger().severe("Error while listing guilds: " + throwable.getMessage());
             throwable.printStackTrace();
             return null;
