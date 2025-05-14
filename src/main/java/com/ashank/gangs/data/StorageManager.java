@@ -72,20 +72,25 @@ public class StorageManager {
                 dataSource = new HikariDataSource(config);
                 plugin.getLogger().info("Database connection pool initialized successfully.");
 
-                
                 try {
                     Flyway flyway = Flyway.configure()
                             .dataSource(dataSource)
-                            .locations("filesystem:migrations") 
-                            .baselineOnMigrate(true) 
+                            .locations("classpath:db/migration")
+                            .baselineOnMigrate(true)
+                            .validateMigrationNaming(true)
                             .load();
                     plugin.getLogger().info("Flyway available migrations: " + java.util.Arrays.toString(flyway.info().all()));
                     flyway.migrate();
                     plugin.getLogger().info("Database schema migration completed successfully.");
 
-                    Enumeration<java.net.URL> migrationsResources = getClass().getClassLoader().getResources("migrations");
-                    while (migrationsResources.hasMoreElements()) {
-                        plugin.getLogger().info("ClassLoader resource at migrations: " + migrationsResources.nextElement());
+                    // DEBUG: List all resources in classpath:db/migration
+                    try {
+                        java.util.Enumeration<java.net.URL> resources = getClass().getClassLoader().getResources("db/migration");
+                        while (resources.hasMoreElements()) {
+                            plugin.getLogger().info("DEBUG: Found db/migration resource in classpath: " + resources.nextElement());
+                        }
+                    } catch (Exception e) {
+                        plugin.getLogger().warning("DEBUG: Error listing db/migration resources: " + e.getMessage());
                     }
                 } catch (FlywayException e) {
                     plugin.getLogger().log(Level.SEVERE, "Database schema migration failed!", e);
