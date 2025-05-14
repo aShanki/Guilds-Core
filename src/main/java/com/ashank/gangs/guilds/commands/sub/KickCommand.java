@@ -1,9 +1,9 @@
-package com.ashank.guilds.commands.sub;
+package com.ashank.gangs.commands.sub;
 
-import com.ashank.guilds.Guild;
-import com.ashank.guilds.GuildsPlugin;
-import com.ashank.guilds.data.StorageManager;
-import com.ashank.guilds.managers.Messages;
+import com.ashank.gangs.Gang;
+import com.ashank.gangs.GangsPlugin;
+import com.ashank.gangs.data.StorageManager;
+import com.ashank.gangs.managers.Messages;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
@@ -21,12 +21,12 @@ import java.util.UUID;
 
 public class KickCommand {
     
-    public static LiteralArgumentBuilder<CommandSourceStack> build(GuildsPlugin plugin) {
+    public static LiteralArgumentBuilder<CommandSourceStack> build(GangsPlugin plugin) {
         StorageManager storageManager = plugin.getStorageManager();
         Messages messages = plugin.getMessages();
 
         return LiteralArgumentBuilder.<CommandSourceStack>literal("kick")
-                .requires(source -> source.getSender().hasPermission("guilds.command.kick"))
+                .requires(source -> source.getSender().hasPermission("gangs.command.kick"))
                 .then(RequiredArgumentBuilder.<CommandSourceStack, String>argument("player", StringArgumentType.word())
                         .suggests((context, builder) -> {
                             String remaining = builder.getRemaining().toLowerCase();
@@ -39,7 +39,7 @@ public class KickCommand {
                         .executes(context -> executeKick(context, plugin, storageManager, messages)));
     }
 
-    private static int executeKick(CommandContext<CommandSourceStack> context, GuildsPlugin plugin, StorageManager storageManager, Messages messages) throws CommandSyntaxException {
+    private static int executeKick(CommandContext<CommandSourceStack> context, GangsPlugin plugin, StorageManager storageManager, Messages messages) throws CommandSyntaxException {
         CommandSender sender = context.getSource().getSender();
 
         if (!(sender instanceof Player player)) {
@@ -62,28 +62,28 @@ public class KickCommand {
             return Command.SINGLE_SUCCESS;
         }
 
-        storageManager.getPlayerGuildAsync(senderId).thenAcceptAsync(senderGuildOpt -> {
-            if (senderGuildOpt.isEmpty()) {
-                player.sendMessage(MiniMessage.miniMessage().deserialize(messages.get("not_in_guild")));
+        storageManager.getPlayerGangAsync(senderId).thenAcceptAsync(senderGangOpt -> {
+            if (senderGangOpt.isEmpty()) {
+                player.sendMessage(MiniMessage.miniMessage().deserialize(messages.get("not_in_gang")));
                 return;
             }
 
-            Guild senderGuild = senderGuildOpt.get();
-            UUID senderGuildId = senderGuild.getGuildId();
+            Gang senderGang = senderGangOpt.get();
+            UUID senderGangId = senderGang.getGangId();
 
-            if (!senderGuild.getLeaderUuid().equals(senderId)) {
+            if (!senderGang.getLeaderUuid().equals(senderId)) {
                 player.sendMessage(MiniMessage.miniMessage().deserialize(messages.get("not_leader")));
                 return;
             }
 
-            storageManager.getPlayerGuildId(targetId).thenAcceptAsync(targetGuildIdOpt -> {
-                if (targetGuildIdOpt.isEmpty() || !targetGuildIdOpt.get().equals(senderGuildId)) {
-                    player.sendMessage(MiniMessage.miniMessage().deserialize(messages.get("player_not_in_your_guild"),
+            storageManager.getPlayerGangId(targetId).thenAcceptAsync(targetGangIdOpt -> {
+                if (targetGangIdOpt.isEmpty() || !targetGangIdOpt.get().equals(senderGangId)) {
+                    player.sendMessage(MiniMessage.miniMessage().deserialize(messages.get("player_not_in_your_gang"),
                             Placeholder.unparsed("player", targetPlayer.getName())));
                     return;
                 }
 
-                storageManager.removeGuildMember(senderGuildId, targetId).thenAccept(success -> {
+                storageManager.removeGangMember(senderGangId, targetId).thenAccept(success -> {
                     if (success) {
                         player.sendMessage(MiniMessage.miniMessage().deserialize(messages.get("member_kicked"),
                                 Placeholder.unparsed("player", targetPlayer.getName())));
@@ -93,25 +93,25 @@ public class KickCommand {
                         }
                     } else {
                         player.sendMessage(MiniMessage.miniMessage().deserialize(messages.get("error")));
-                        plugin.getLogger().warning("Failed to remove player " + targetId + " from guild " + senderGuildId + " during kick operation (removeGuildMember returned false).");
+                        plugin.getLogger().warning("Failed to remove player " + targetId + " from gang " + senderGangId + " during kick operation (removeGangMember returned false).");
                     }
                 }).exceptionally(ex -> {
                     player.sendMessage(MiniMessage.miniMessage().deserialize(messages.get("error")));
-                    plugin.getLogger().severe("Error removing guild member during kick: " + ex.getMessage());
+                    plugin.getLogger().severe("Error removing gang member during kick: " + ex.getMessage());
                     ex.printStackTrace();
                     return null;
                 });
 
             }).exceptionally(ex -> {
                 player.sendMessage(MiniMessage.miniMessage().deserialize(messages.get("error")));
-                plugin.getLogger().severe("Error fetching target player guild ID for kick: " + ex.getMessage());
+                plugin.getLogger().severe("Error fetching target player gang ID for kick: " + ex.getMessage());
                 ex.printStackTrace();
                 return null;
             });
 
         }).exceptionally(ex -> {
             player.sendMessage(MiniMessage.miniMessage().deserialize(messages.get("error")));
-            plugin.getLogger().severe("Error fetching sender guild data for kick: " + ex.getMessage());
+            plugin.getLogger().severe("Error fetching sender gang data for kick: " + ex.getMessage());
             ex.printStackTrace();
             return null;
         });

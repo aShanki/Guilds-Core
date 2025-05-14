@@ -1,10 +1,10 @@
-package com.ashank.guilds.commands.sub;
+package com.ashank.gangs.commands.sub;
 
-import com.ashank.guilds.Guild;
-import com.ashank.guilds.GuildsPlugin;
-import com.ashank.guilds.data.Confirmation;
-import com.ashank.guilds.data.StorageManager;
-import com.ashank.guilds.managers.Messages;
+import com.ashank.gangs.Gang;
+import com.ashank.gangs.GangsPlugin;
+import com.ashank.gangs.data.Confirmation;
+import com.ashank.gangs.data.StorageManager;
+import com.ashank.gangs.managers.Messages;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -20,17 +20,17 @@ import java.util.UUID;
 
 public class DisbandConfirmCommand {
     
-    public static LiteralArgumentBuilder<CommandSourceStack> build(GuildsPlugin plugin) {
+    public static LiteralArgumentBuilder<CommandSourceStack> build(GangsPlugin plugin) {
         StorageManager storageManager = plugin.getStorageManager();
         Messages messages = plugin.getMessages();
         MiniMessage miniMessage = MiniMessage.miniMessage();
 
         return LiteralArgumentBuilder.<CommandSourceStack>literal("confirm")
-                .requires(source -> source.getSender() instanceof Player && source.getSender().hasPermission("guilds.command.disband.confirm"))
+                .requires(source -> source.getSender() instanceof Player && source.getSender().hasPermission("gangs.command.disband.confirm"))
                 .executes(context -> executeConfirm(context, plugin, storageManager, messages, miniMessage));
     }
 
-    private static int executeConfirm(CommandContext<CommandSourceStack> context, GuildsPlugin plugin,
+    private static int executeConfirm(CommandContext<CommandSourceStack> context, GangsPlugin plugin,
             StorageManager storageManager, Messages messages, MiniMessage miniMessage) {
         CommandSender sender = context.getSource().getSender();
         
@@ -42,23 +42,23 @@ public class DisbandConfirmCommand {
         Player player = (Player) sender;
         UUID playerUuid = player.getUniqueId();
 
-        storageManager.getPlayerGuildId(playerUuid).thenAcceptAsync((Optional<UUID> guildIdOptional) -> {
-            if (guildIdOptional.isEmpty()) {
-                player.sendMessage(miniMessage.deserialize(messages.get("not_in_guild")));
+        storageManager.getPlayerGangId(playerUuid).thenAcceptAsync((Optional<UUID> gangIdOptional) -> {
+            if (gangIdOptional.isEmpty()) {
+                player.sendMessage(miniMessage.deserialize(messages.get("not_in_gang")));
                 return;
             }
 
-            UUID guildId = guildIdOptional.get();
+            UUID gangId = gangIdOptional.get();
             
-            storageManager.getGuildById(guildId).thenAcceptAsync(guildOpt -> {
-                if (guildOpt.isEmpty()) {
+            storageManager.getGangById(gangId).thenAcceptAsync(gangOpt -> {
+                if (gangOpt.isEmpty()) {
                     player.sendMessage(miniMessage.deserialize(messages.get("command_error")));
                     return;
                 }
 
-                Guild guild = guildOpt.get();
-                if (!guild.getLeaderUuid().equals(playerUuid)) {
-                    player.sendMessage(miniMessage.deserialize(messages.get("not_guild_leader")));
+                Gang gang = gangOpt.get();
+                if (!gang.getLeaderUuid().equals(playerUuid)) {
+                    player.sendMessage(miniMessage.deserialize(messages.get("not_gang_leader")));
                     return;
                 }
 
@@ -69,7 +69,7 @@ public class DisbandConfirmCommand {
                     }
 
                     Confirmation confirmation = confirmationOpt.get();
-                    if (!confirmation.guildId().equals(guildId)) {
+                    if (!confirmation.gangId().equals(gangId)) {
                         player.sendMessage(miniMessage.deserialize(messages.get("invalid_confirmation")));
                         return;
                     }
@@ -81,10 +81,10 @@ public class DisbandConfirmCommand {
                     }
 
                     
-                    storageManager.getGuildMembers(guildId).thenAcceptAsync((Set<UUID> members) -> {
+                    storageManager.getGangMembers(gangId).thenAcceptAsync((Set<UUID> members) -> {
                         
                         for (UUID memberId : members) {
-                            storageManager.removeGuildMember(guildId, memberId).exceptionally(ex -> {
+                            storageManager.removeGangMember(gangId, memberId).exceptionally(ex -> {
                                 plugin.getLogger().severe("Error removing member " + memberId + ": " + ex.getMessage());
                                 ex.printStackTrace();
                                 return false;
@@ -92,28 +92,28 @@ public class DisbandConfirmCommand {
                         }
 
                         
-                        storageManager.deleteGuild(guildId).thenAcceptAsync(success -> {
+                        storageManager.deleteGang(gangId).thenAcceptAsync(success -> {
                             if (success) {
                                 
                                 for (UUID memberId : members) {
                                     Player member = plugin.getServer().getPlayer(memberId);
                                     if (member != null && member.isOnline()) {
-                                        member.sendMessage(miniMessage.deserialize(messages.get("guild_disbanded_member")));
+                                        member.sendMessage(miniMessage.deserialize(messages.get("gang_disbanded_member")));
                                     }
                                 }
-                                player.sendMessage(miniMessage.deserialize(messages.get("guild_disbanded")));
+                                player.sendMessage(miniMessage.deserialize(messages.get("gang_disbanded")));
                                 storageManager.removeConfirmation(playerUuid);
                             } else {
                                 player.sendMessage(miniMessage.deserialize(messages.get("command_error")));
                             }
                         }).exceptionally(ex -> {
-                            plugin.getLogger().severe("Error disbanding guild: " + ex.getMessage());
+                            plugin.getLogger().severe("Error disbanding gang: " + ex.getMessage());
                             ex.printStackTrace();
                             player.sendMessage(miniMessage.deserialize(messages.get("command_error")));
                             return null;
                         });
                     }).exceptionally(ex -> {
-                        plugin.getLogger().severe("Error getting guild members: " + ex.getMessage());
+                        plugin.getLogger().severe("Error getting gang members: " + ex.getMessage());
                         ex.printStackTrace();
                         player.sendMessage(miniMessage.deserialize(messages.get("command_error")));
                         return null;
@@ -125,13 +125,13 @@ public class DisbandConfirmCommand {
                     return null;
                 });
             }).exceptionally(ex -> {
-                plugin.getLogger().severe("Error getting guild: " + ex.getMessage());
+                plugin.getLogger().severe("Error getting gang: " + ex.getMessage());
                 ex.printStackTrace();
                 player.sendMessage(miniMessage.deserialize(messages.get("command_error")));
                 return null;
             });
         }).exceptionally(ex -> {
-            plugin.getLogger().severe("Error checking player guild: " + ex.getMessage());
+            plugin.getLogger().severe("Error checking player gang: " + ex.getMessage());
             ex.printStackTrace();
             player.sendMessage(miniMessage.deserialize(messages.get("command_error")));
             return null;

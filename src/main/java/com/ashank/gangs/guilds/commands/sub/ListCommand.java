@@ -1,7 +1,7 @@
-package com.ashank.guilds.commands.sub;
+package com.ashank.gangs.commands.sub;
 
-import com.ashank.guilds.Guild;
-import com.ashank.guilds.GuildsPlugin;
+import com.ashank.gangs.Gang;
+import com.ashank.gangs.GangsPlugin;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -22,27 +22,27 @@ public class ListCommand {
     private static final int GUILDS_PER_PAGE = 10;
 
     
-    public static LiteralArgumentBuilder<CommandSourceStack> build(GuildsPlugin plugin) {
+    public static LiteralArgumentBuilder<CommandSourceStack> build(GangsPlugin plugin) {
         return LiteralArgumentBuilder.<CommandSourceStack>literal("list")
-                .requires(source -> source.getSender() instanceof Player && source.getSender().hasPermission("guilds.command.list"))
+                .requires(source -> source.getSender() instanceof Player && source.getSender().hasPermission("gangs.command.list"))
                 .executes(context -> executeList(context, plugin, 1))
                 .then(RequiredArgumentBuilder.<CommandSourceStack, Integer>argument("page", IntegerArgumentType.integer(1))
                         .executes(context -> executeList(context, plugin, context.getArgument("page", Integer.class))));
     }
 
-    private static int executeList(CommandContext<CommandSourceStack> context, GuildsPlugin plugin, int requestedPage) {
+    private static int executeList(CommandContext<CommandSourceStack> context, GangsPlugin plugin, int requestedPage) {
         CommandSender sender = context.getSource().getSender();
 
-        plugin.getStorageManager().getAllGuilds().thenAccept(guilds -> {
+        plugin.getStorageManager().getAllGangs().thenAccept(gangs -> {
             MiniMessage miniMessage = MiniMessage.miniMessage();
-            int totalPages = Math.max(1, (guilds.size() + GUILDS_PER_PAGE - 1) / GUILDS_PER_PAGE);
+            int totalPages = Math.max(1, (gangs.size() + GUILDS_PER_PAGE - 1) / GUILDS_PER_PAGE);
             
             
             final int page = Math.min(Math.max(requestedPage, 1), totalPages);
 
             
             int startIndex = (page - 1) * GUILDS_PER_PAGE;
-            int endIndex = Math.min(startIndex + GUILDS_PER_PAGE, guilds.size());
+            int endIndex = Math.min(startIndex + GUILDS_PER_PAGE, gangs.size());
 
             
             Map<String, String> headerPlaceholders = new HashMap<>();
@@ -51,23 +51,23 @@ public class ListCommand {
             sender.sendMessage(miniMessage.deserialize(plugin.getMessages().get("list_header", headerPlaceholders)));
 
             
-            if (guilds.isEmpty()) {
+            if (gangs.isEmpty()) {
                 sender.sendMessage(miniMessage.deserialize(plugin.getMessages().get("list_empty", new HashMap<>())));
                 return;
             }
 
             
-            List<Guild> pageGuilds = guilds.subList(startIndex, endIndex);
-            for (Guild guild : pageGuilds) {
+            List<Gang> pageGangs = gangs.subList(startIndex, endIndex);
+            for (Gang gang : pageGangs) {
                 Map<String, String> entryPlaceholders = new HashMap<>();
-                entryPlaceholders.put("guild", guild.getName());
-                entryPlaceholders.put("count", String.valueOf(guild.getMemberUuids().size()));
+                entryPlaceholders.put("gang", gang.getName());
+                entryPlaceholders.put("count", String.valueOf(gang.getMemberUuids().size()));
                 sender.sendMessage(miniMessage.deserialize(plugin.getMessages().get("list_entry", entryPlaceholders)));
             }
         }).exceptionally(throwable -> {
             MiniMessage miniMessage = MiniMessage.miniMessage();
             sender.sendMessage(miniMessage.deserialize(plugin.getMessages().get("error")));
-            plugin.getLogger().severe("Error while listing guilds: " + throwable.getMessage());
+            plugin.getLogger().severe("Error while listing gangs: " + throwable.getMessage());
             throwable.printStackTrace();
             return null;
         });

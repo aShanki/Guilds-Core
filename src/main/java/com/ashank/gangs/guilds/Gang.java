@@ -1,18 +1,18 @@
-package com.ashank.guilds;
+package com.ashank.gangs;
 
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-public class Guild {
-    private final UUID guildId;
+public class Gang {
+    private final UUID gangId;
     private String name;
     private UUID leaderUuid;
     private final Set<UUID> memberUuids;
     private String description;
 
-    public Guild(UUID guildId, String name, UUID leaderUuid, Set<UUID> memberUuids, String description) {
-        this.guildId = Objects.requireNonNull(guildId, "guildId cannot be null");
+    public Gang(UUID gangId, String name, UUID leaderUuid, Set<UUID> memberUuids, String description) {
+        this.gangId = Objects.requireNonNull(gangId, "gangId cannot be null");
         this.name = Objects.requireNonNull(name, "name cannot be null");
         this.leaderUuid = Objects.requireNonNull(leaderUuid, "leaderUuid cannot be null");
         this.memberUuids = Objects.requireNonNull(memberUuids, "memberUuids cannot be null");
@@ -24,8 +24,8 @@ public class Guild {
         }
     }
 
-    public UUID getGuildId() {
-        return guildId;
+    public UUID getGangId() {
+        return gangId;
     }
 
     public String getName() {
@@ -43,7 +43,7 @@ public class Guild {
     public void setLeaderUuid(UUID leaderUuid) {
 
         if (!this.memberUuids.contains(leaderUuid)) {
-            throw new IllegalArgumentException("New leader must already be a member of the guild.");
+            throw new IllegalArgumentException("New leader must already be a member of the gang.");
         }
         this.leaderUuid = Objects.requireNonNull(leaderUuid, "leaderUuid cannot be null");
     }
@@ -76,19 +76,19 @@ public class Guild {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Guild guild = (Guild) o;
-        return Objects.equals(guildId, guild.guildId);
+        Gang gang = (Gang) o;
+        return Objects.equals(gangId, gang.gangId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(guildId);
+        return Objects.hash(gangId);
     }
 
     @Override
     public String toString() {
-        return "Guild{" +
-               "guildId=" + guildId +
+        return "Gang{" +
+               "gangId=" + gangId +
                ", name='" + name + '\'' +
                ", leaderUuid=" + leaderUuid +
                ", memberUuids=" + memberUuids +

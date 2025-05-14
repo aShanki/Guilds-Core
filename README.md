@@ -1,12 +1,12 @@
-# Guilds Plugin
+# Gangs Plugin
 
-A modern, customizable Minecraft plugin for managing player guilds. Supports Paper/Bukkit 1.21+ and integrates with PlaceholderAPI. Built for performance, flexibility, and ease of use.
+A modern, customizable Minecraft plugin for managing player gangs. Supports Paper/Bukkit 1.21+ and integrates with PlaceholderAPI. Built for performance, flexibility, and ease of use.
 
 ## Features
 
-- Create, join, leave, and manage guilds
-- Guild chat (/gc)
-- Guild descriptions and info
+- Create, join, leave, and manage gangs
+- Gang chat (/gc)
+- Gang descriptions and info
 - Invite system with expiry
 - Admin commands for moderation
 - MySQL database support (async, high performance)
@@ -24,18 +24,18 @@ A modern, customizable Minecraft plugin for managing player guilds. Supports Pap
 
 ## Configuration
 
-Edit `plugins/Guilds/config.yml` to set up your MySQL database and customize guild settings:
+Edit `plugins/Gangs/config.yml` to set up your MySQL database and customize gang settings:
 
 ```yaml
 mysql:
   host: localhost
   port: 3306
-  database: guilds
-  username: guilds_user
+  database: gangs
+  username: gangs_user
   password: "secret"
   pool-size: 10
 
-guild:
+gang:
   name:
     min-length: 3
     max-length: 16
@@ -49,34 +49,33 @@ list:
   items-per-page: 10
 
 placeholder:
-  no-guild-value: "None"
+  no-gang-value: "None"
 ```
 
-You can also customize all player-facing messages in `plugins/Guilds/messages.yml`.
+You can also customize all player-facing messages in `plugins/Gangs/messages.yml`.
 
 ## Commands
 
-- `/guild` (aliases: `/g`): Main command for all guild actions.
-  - `/guild create <name>`: Create a new guild
-  - `/guild invite <player>`: Invite a player
-  - `/guild join <name>`: Join a guild
-  - `/guild leave`: Leave your current guild
-  - `/guild kick <player>`: Kick a member
-  - `/guild description <text>`: Set guild description
-  - `/guild info [name]`: View info about a guild
-  - `/guild list [page]`: List all guilds
-  - `/guild disband`: Disband your guild (leader only)
-  - `/guild admin ...`: Admin subcommands (rename, wipe description, disband any guild, etc.)
-- `/gc <message>`: Send a message to your guild chat
+- `/gangs` (aliases: `/gs`): Main command for all gang actions.
+- `/gangs create <name>`: Create a new gang
+- `/gangs invite <player>`: Invite a player
+- `/gangs join <name>`: Join a gang
+- `/gangs leave`: Leave your current gang
+- `/gangs kick <player>`: Kick a member
+- `/gangs description <text>`: Set gang description
+- `/gangs info [name]`: View info about a gang
+- `/gangs list [page]`: List all gangs
+- `/gangs disband`: Disband your gang (leader only)
+- `/gangs admin ...`: Admin subcommands (rename, wipe description, disband any gang, etc.)
+- `/gc <message>`: Send a message to your gang chat
 
 ## Permissions
 
-- `guilds.admin`: Allows use of all admin guild commands (default: op)
+- `gangs.admin`: Allows use of all admin gang commands (default: op)
 
 ## Placeholders
 
-If PlaceholderAPI is installed, you can use:
-- `%guild_name%`: Shows the player's guild name (or "None")
+- `%gang_name%`: Shows the player's gang name (or "None")
 
 ## Support
 

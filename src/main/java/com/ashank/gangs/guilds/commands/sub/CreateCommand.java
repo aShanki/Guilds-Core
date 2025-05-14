@@ -1,11 +1,11 @@
-package com.ashank.guilds.commands.sub;
+package com.ashank.gangs.commands.sub;
 
-import com.ashank.guilds.GuildsPlugin;
-import com.ashank.guilds.data.StorageManager;
-import com.ashank.guilds.managers.Messages;
+import com.ashank.gangs.GangsPlugin;
+import com.ashank.gangs.data.StorageManager;
+import com.ashank.gangs.managers.Messages;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
-import com.ashank.guilds.Guild;
+import com.ashank.gangs.Gang;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -30,7 +30,7 @@ public class CreateCommand {
 
     
     
-    public static LiteralArgumentBuilder<CommandSourceStack> build(GuildsPlugin plugin) {
+    public static LiteralArgumentBuilder<CommandSourceStack> build(GangsPlugin plugin) {
         StorageManager storageManager = plugin.getStorageManager();
         Messages messages = plugin.getMessages();
         MiniMessage miniMessage = MiniMessage.miniMessage();
@@ -38,13 +38,13 @@ public class CreateCommand {
         return LiteralArgumentBuilder.<CommandSourceStack>literal("create")
                 .requires(source -> {
                     CommandSender sender = source.getSender();
-                    return sender instanceof Player && sender.hasPermission("guilds.command.create");
+                    return sender instanceof Player && sender.hasPermission("gangs.command.create");
                 })
                 .then(RequiredArgumentBuilder.<CommandSourceStack, String>argument("name", StringArgumentType.string())
                         .executes(context -> executeCreate(context, plugin, storageManager, messages, miniMessage)));
     }
 
-    private static int executeCreate(CommandContext<CommandSourceStack> context, GuildsPlugin plugin, StorageManager storageManager, Messages messages, MiniMessage miniMessage) throws CommandSyntaxException {
+    private static int executeCreate(CommandContext<CommandSourceStack> context, GangsPlugin plugin, StorageManager storageManager, Messages messages, MiniMessage miniMessage) throws CommandSyntaxException {
         CommandSender sender = context.getSource().getSender();
         
         if (!(sender instanceof Player)) {
@@ -54,56 +54,56 @@ public class CreateCommand {
             return Command.SINGLE_SUCCESS;
         }
         Player player = (Player) sender;
-        String guildName = context.getArgument("name", String.class);
+        String gangName = context.getArgument("name", String.class);
 
-        storageManager.getPlayerGuildId(player.getUniqueId()).thenAcceptAsync(guildIdOptional -> {
-            if (guildIdOptional.isPresent()) {
+        storageManager.getPlayerGangId(player.getUniqueId()).thenAcceptAsync(gangIdOptional -> {
+            if (gangIdOptional.isPresent()) {
                 Bukkit.getScheduler().runTask(plugin, () -> {
-                    player.sendMessage(miniMessage.deserialize(messages.get("create_already_in_guild")));
+                    player.sendMessage(miniMessage.deserialize(messages.get("create_already_in_gang")));
                 });
                 return; 
             }
 
-            if (guildName.length() < 3 || guildName.length() > 16) {
+            if (gangName.length() < 3 || gangName.length() > 16) {
                 Bukkit.getScheduler().runTask(plugin, () -> {
                     player.sendMessage(miniMessage.deserialize(messages.get("create_invalid_length")));
                 });
                 return; 
             }
 
-            if (!GUILD_NAME_PATTERN.matcher(guildName).matches()) {
+            if (!GUILD_NAME_PATTERN.matcher(gangName).matches()) {
                 Bukkit.getScheduler().runTask(plugin, () -> {
                     player.sendMessage(miniMessage.deserialize(messages.get("create_invalid_characters")));
                 });
                 return; 
             }
 
-            storageManager.isGuildNameTaken(guildName).thenAcceptAsync(isTaken -> {
+            storageManager.isGangNameTaken(gangName).thenAcceptAsync(isTaken -> {
                 if (isTaken) {
                     Bukkit.getScheduler().runTask(plugin, () -> {
                         player.sendMessage(miniMessage.deserialize(messages.get("create_name_taken"),
-                                Placeholder.unparsed("name", guildName)));
+                                Placeholder.unparsed("name", gangName)));
                     });
                     return; 
                 }
 
-                UUID newGuildId = UUID.randomUUID();
+                UUID newGangId = UUID.randomUUID();
                 UUID leaderUuid = player.getUniqueId();
                 Set<UUID> initialMembers = new HashSet<>();
                 initialMembers.add(leaderUuid); 
                 String initialDescription = ""; 
 
-                Guild newGuild = new Guild(newGuildId, guildName, leaderUuid, initialMembers, initialDescription);
+                Gang newGang = new Gang(newGangId, gangName, leaderUuid, initialMembers, initialDescription);
 
-                storageManager.createGuild(newGuild).thenComposeAsync(v -> {
-                    return storageManager.addGuildMember(newGuildId, player.getUniqueId());
+                storageManager.createGang(newGang).thenComposeAsync(v -> {
+                    return storageManager.addGangMember(newGangId, player.getUniqueId());
                 }).thenAcceptAsync(v -> {
                     Bukkit.getScheduler().runTask(plugin, () -> {
                         player.sendMessage(miniMessage.deserialize(messages.get("create_success"),
-                                Placeholder.unparsed("name", guildName)));
+                                Placeholder.unparsed("name", gangName)));
                     });
                 }).exceptionally(ex -> {
-                    plugin.getLogger().severe("Error during guild creation/member add for " + guildName + ": " + ex.getMessage());
+                    plugin.getLogger().severe("Error during gang creation/member add for " + gangName + ": " + ex.getMessage());
                     ex.printStackTrace();
                     Bukkit.getScheduler().runTask(plugin, () -> {
                         player.sendMessage(miniMessage.deserialize(messages.get("create_error")));
@@ -112,7 +112,7 @@ public class CreateCommand {
                 });
 
             }).exceptionally(ex -> {
-                plugin.getLogger().severe("Error checking if guild name is taken: " + ex.getMessage());
+                plugin.getLogger().severe("Error checking if gang name is taken: " + ex.getMessage());
                 ex.printStackTrace();
                 Bukkit.getScheduler().runTask(plugin, () -> {
                     player.sendMessage(miniMessage.deserialize(messages.get("create_error")));
@@ -121,7 +121,7 @@ public class CreateCommand {
             });
 
         }).exceptionally(ex -> {
-            plugin.getLogger().severe("Error fetching player guild ID: " + ex.getMessage());
+            plugin.getLogger().severe("Error fetching player gang ID: " + ex.getMessage());
             ex.printStackTrace();
             Bukkit.getScheduler().runTask(plugin, () -> {
                 player.sendMessage(miniMessage.deserialize(messages.get("create_error")));

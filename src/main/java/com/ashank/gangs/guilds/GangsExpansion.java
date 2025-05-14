@@ -1,23 +1,23 @@
-package com.ashank.guilds;
+package com.ashank.gangs;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
-import com.ashank.guilds.data.StorageManager;
+import com.ashank.gangs.data.StorageManager;
 import java.util.concurrent.CompletableFuture;
 
-public class GuildsExpansion extends PlaceholderExpansion {
-    private final GuildsPlugin plugin;
+public class GangsExpansion extends PlaceholderExpansion {
+    private final GangsPlugin plugin;
     private final StorageManager storageManager;
 
-    public GuildsExpansion(GuildsPlugin plugin) {
+    public GangsExpansion(GangsPlugin plugin) {
         this.plugin = plugin;
         this.storageManager = plugin.getStorageManager();
     }
 
     @Override
     public @NotNull String getIdentifier() {
-        return "guild";
+        return "gang";
     }
 
     @Override
@@ -44,12 +44,12 @@ public class GuildsExpansion extends PlaceholderExpansion {
 
 
             try {
-                CompletableFuture<String> future = storageManager.getGuildNameForPlayer(player.getUniqueId());
-                String guildName = future.get();
-                return guildName != null ? guildName : plugin.getConfig().getString("placeholder.no_guild", "None");
+                CompletableFuture<String> future = storageManager.getGangNameForPlayer(player.getUniqueId());
+                String gangName = future.get();
+                return gangName != null ? gangName : plugin.getConfig().getString("placeholder.no_gang", "None");
             } catch (Exception e) {
-                plugin.getLogger().warning("Failed to fetch guild name for placeholder: " + e.getMessage());
-                return plugin.getConfig().getString("placeholder.no_guild", "None");
+                plugin.getLogger().warning("Failed to fetch gang name for placeholder: " + e.getMessage());
+                return plugin.getConfig().getString("placeholder.no_gang", "None");
             }
         }
         return null;

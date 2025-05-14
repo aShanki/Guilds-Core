@@ -1,11 +1,11 @@
-package com.ashank.guilds;
+package com.ashank.gangs;
 
-import com.ashank.guilds.data.StorageManager;
+import com.ashank.gangs.data.StorageManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
-import com.ashank.guilds.managers.Messages;
+import com.ashank.gangs.managers.Messages;
 
-public class GuildsPlugin extends JavaPlugin {
+public class GangsPlugin extends JavaPlugin {
 
 
     private StorageManager storageManager;
@@ -15,7 +15,7 @@ public class GuildsPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         
-        getLogger().info("Guilds plugin enabling process started (bootstrapper handles registration).");
+        getLogger().info("Gangs plugin enabling process started (bootstrapper handles registration).");
     }
 
     @Override
@@ -30,7 +30,7 @@ public class GuildsPlugin extends JavaPlugin {
         if (storageManager != null) {
             storageManager.closeDataSource();
         }
-        getLogger().info("Guilds plugin disabled.");
+        getLogger().info("Gangs plugin disabled.");
     }
 
 

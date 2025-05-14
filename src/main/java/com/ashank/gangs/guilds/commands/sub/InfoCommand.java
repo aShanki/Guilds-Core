@@ -1,7 +1,7 @@
-package com.ashank.guilds.commands.sub;
+package com.ashank.gangs.commands.sub;
 
-import com.ashank.guilds.Guild;
-import com.ashank.guilds.GuildsPlugin;
+import com.ashank.gangs.Gang;
+import com.ashank.gangs.GangsPlugin;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -24,16 +24,16 @@ import java.util.concurrent.CompletableFuture;
 
 
 public class InfoCommand {
-    private static GuildsPlugin plugin;
+    private static GangsPlugin plugin;
 
     
-    public static LiteralArgumentBuilder<CommandSourceStack> build(GuildsPlugin pluginInstance) {
+    public static LiteralArgumentBuilder<CommandSourceStack> build(GangsPlugin pluginInstance) {
         plugin = pluginInstance;
         return LiteralArgumentBuilder.<CommandSourceStack>literal("info")
-                .requires(source -> source.getSender().hasPermission("guilds.command.info"))
+                .requires(source -> source.getSender().hasPermission("gangs.command.info"))
                 .executes(context -> executeInfo(context))
                 .then(RequiredArgumentBuilder.<CommandSourceStack, String>argument("name", StringArgumentType.greedyString())
-                        .suggests((context, builder) -> suggestGuildNames(plugin, builder))
+                        .suggests((context, builder) -> suggestGangNames(plugin, builder))
                         .executes(context -> executeInfoWithName(context)));
     }
 
@@ -45,23 +45,23 @@ public class InfoCommand {
         }
 
         UUID playerUuid = player.getUniqueId();
-        plugin.getStorageManager().getPlayerGuildId(playerUuid).thenCompose(guildIdOpt -> {
-            if (guildIdOpt.isEmpty()) {
-                player.sendMessage(MiniMessage.miniMessage().deserialize("<red>You are not in a guild."));
+        plugin.getStorageManager().getPlayerGangId(playerUuid).thenCompose(gangIdOpt -> {
+            if (gangIdOpt.isEmpty()) {
+                player.sendMessage(MiniMessage.miniMessage().deserialize("<red>You are not in a gang."));
                 return CompletableFuture.completedFuture(null);
             }
-            UUID guildId = guildIdOpt.get();
-            return plugin.getStorageManager().getGuildById(guildId).thenCompose(guildOpt -> {
-                if (guildOpt.isEmpty()) {
-                    player.sendMessage(MiniMessage.miniMessage().deserialize("<red>Could not find your guild."));
+            UUID gangId = gangIdOpt.get();
+            return plugin.getStorageManager().getGangById(gangId).thenCompose(gangOpt -> {
+                if (gangOpt.isEmpty()) {
+                    player.sendMessage(MiniMessage.miniMessage().deserialize("<red>Could not find your gang."));
                     return CompletableFuture.completedFuture(null);
                 }
-                Guild guild = guildOpt.get();
-                return sendGuildInfo(player, guild);
+                Gang gang = gangOpt.get();
+                return sendGangInfo(player, gang);
             });
         }).exceptionally(ex -> {
-            plugin.getLogger().severe("Error fetching player's own guild info: " + ex.getMessage());
-            player.sendMessage(MiniMessage.miniMessage().deserialize("<red>An error occurred while fetching your guild info."));
+            plugin.getLogger().severe("Error fetching player's own gang info: " + ex.getMessage());
+            player.sendMessage(MiniMessage.miniMessage().deserialize("<red>An error occurred while fetching your gang info."));
             return null;
         });
 
@@ -75,29 +75,29 @@ public class InfoCommand {
             return Command.SINGLE_SUCCESS;
         }
 
-        String guildName = StringArgumentType.getString(context, "name");
-        plugin.getStorageManager().getGuildByName(guildName).thenCompose(guildOpt -> {
-            if (guildOpt.isEmpty()) {
-                player.sendMessage(MiniMessage.miniMessage().deserialize("<red>Guild not found."));
+        String gangName = StringArgumentType.getString(context, "name");
+        plugin.getStorageManager().getGangByName(gangName).thenCompose(gangOpt -> {
+            if (gangOpt.isEmpty()) {
+                player.sendMessage(MiniMessage.miniMessage().deserialize("<red>Gang not found."));
                 return CompletableFuture.completedFuture(null);
             }
-            Guild guild = guildOpt.get();
-            return sendGuildInfo(player, guild);
+            Gang gang = gangOpt.get();
+            return sendGangInfo(player, gang);
         }).exceptionally(ex -> {
-            plugin.getLogger().severe("Error fetching guild info for name: " + guildName + ": " + ex.getMessage());
-            player.sendMessage(MiniMessage.miniMessage().deserialize("<red>An error occurred while fetching guild info."));
+            plugin.getLogger().severe("Error fetching gang info for name: " + gangName + ": " + ex.getMessage());
+            player.sendMessage(MiniMessage.miniMessage().deserialize("<red>An error occurred while fetching gang info."));
             return null;
         });
 
         return Command.SINGLE_SUCCESS;
     }
 
-    private static CompletableFuture<Void> sendGuildInfo(Player player, Guild guild) {
-        UUID leaderUuid = guild.getLeaderUuid();
+    private static CompletableFuture<Void> sendGangInfo(Player player, Gang gang) {
+        UUID leaderUuid = gang.getLeaderUuid();
         OfflinePlayer leader = Bukkit.getOfflinePlayer(leaderUuid);
         String leaderName = leader.getName() != null ? leader.getName() : leaderUuid.toString();
 
-        Set<UUID> memberUuids = guild.getMemberUuids();
+        Set<UUID> memberUuids = gang.getMemberUuids();
         List<String> memberNames = new ArrayList<>();
         for (UUID uuid : memberUuids) {
             OfflinePlayer member = Bukkit.getOfflinePlayer(uuid);
@@ -107,10 +107,10 @@ public class InfoCommand {
         memberNames.sort(String::compareToIgnoreCase);
 
         MiniMessage miniMessage = MiniMessage.miniMessage();
-        player.sendMessage(miniMessage.deserialize("<gold>Guild Info"));
-        player.sendMessage(miniMessage.deserialize("<yellow>Name: </yellow><aqua>" + guild.getName() + "</aqua>"));
+        player.sendMessage(miniMessage.deserialize("<gold>Gang Info"));
+        player.sendMessage(miniMessage.deserialize("<yellow>Name: </yellow><aqua>" + gang.getName() + "</aqua>"));
         player.sendMessage(miniMessage.deserialize("<yellow>Leader: </yellow><aqua>" + leaderName + "</aqua>"));
-        String desc = guild.getDescription();
+        String desc = gang.getDescription();
         if (desc != null && !desc.isEmpty()) {
             player.sendMessage(miniMessage.deserialize("<yellow>Description: </yellow><white>" + desc + "</white>"));
         } else {
@@ -123,18 +123,18 @@ public class InfoCommand {
         return CompletableFuture.completedFuture(null);
     }
 
-    private static CompletableFuture<Suggestions> suggestGuildNames(GuildsPlugin plugin, SuggestionsBuilder builder) {
+    private static CompletableFuture<Suggestions> suggestGangNames(GangsPlugin plugin, SuggestionsBuilder builder) {
         String remaining = builder.getRemaining().toLowerCase();
-        return plugin.getStorageManager().getAllGuilds()
-                .thenApply(guilds -> {
-                    guilds.stream()
-                        .map(Guild::getName)
+        return plugin.getStorageManager().getAllGangs()
+                .thenApply(gangs -> {
+                    gangs.stream()
+                        .map(Gang::getName)
                         .filter(name -> name.toLowerCase().startsWith(remaining))
                         .forEach(builder::suggest);
                     return builder.build();
                 })
                 .exceptionally(ex -> {
-                    plugin.getLogger().severe("Error fetching guild names for suggestions: " + ex.getMessage());
+                    plugin.getLogger().severe("Error fetching gang names for suggestions: " + ex.getMessage());
                     return builder.build();
                 });
     }

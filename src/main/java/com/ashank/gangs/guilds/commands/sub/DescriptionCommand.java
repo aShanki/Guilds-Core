@@ -1,9 +1,9 @@
-package com.ashank.guilds.commands.sub;
+package com.ashank.gangs.commands.sub;
 
-import com.ashank.guilds.Guild;
-import com.ashank.guilds.GuildsPlugin;
-import com.ashank.guilds.data.StorageManager;
-import com.ashank.guilds.managers.Messages;
+import com.ashank.gangs.Gang;
+import com.ashank.gangs.GangsPlugin;
+import com.ashank.gangs.data.StorageManager;
+import com.ashank.gangs.managers.Messages;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -23,18 +23,18 @@ public class DescriptionCommand {
 
     
     
-    public static LiteralArgumentBuilder<CommandSourceStack> build(GuildsPlugin plugin) {
+    public static LiteralArgumentBuilder<CommandSourceStack> build(GangsPlugin plugin) {
         StorageManager storageManager = plugin.getStorageManager();
         Messages messages = plugin.getMessages();
         MiniMessage miniMessage = MiniMessage.miniMessage(); 
 
         return LiteralArgumentBuilder.<CommandSourceStack>literal("description")
-                .requires(source -> source.getSender() instanceof Player && source.getSender().hasPermission("guilds.command.description"))
+                .requires(source -> source.getSender() instanceof Player && source.getSender().hasPermission("gangs.command.description"))
                 .then(RequiredArgumentBuilder.<CommandSourceStack, String>argument("text", StringArgumentType.greedyString())
                         .executes(context -> executeSetDescription(context, plugin, storageManager, messages, miniMessage)));
     }
 
-    private static int executeSetDescription(CommandContext<CommandSourceStack> context, GuildsPlugin plugin, StorageManager storageManager, Messages messages, MiniMessage miniMessage) {
+    private static int executeSetDescription(CommandContext<CommandSourceStack> context, GangsPlugin plugin, StorageManager storageManager, Messages messages, MiniMessage miniMessage) {
         CommandSender sender = context.getSource().getSender();
         if (!(sender instanceof Player player)) {
             sender.sendMessage(miniMessage.deserialize(messages.get("onlyPlayers")));
@@ -45,16 +45,16 @@ public class DescriptionCommand {
         UUID playerUuid = player.getUniqueId();
 
         
-        storageManager.getPlayerGuildAsync(playerUuid).thenAcceptAsync(guildOptional -> {
-            if (guildOptional.isEmpty()) {
-                player.sendMessage(miniMessage.deserialize(messages.get("not_in_guild")));
+        storageManager.getPlayerGangAsync(playerUuid).thenAcceptAsync(gangOptional -> {
+            if (gangOptional.isEmpty()) {
+                player.sendMessage(miniMessage.deserialize(messages.get("not_in_gang")));
                 return;
             }
 
-            Guild guild = guildOptional.get();
+            Gang gang = gangOptional.get();
 
             
-            if (!guild.getLeaderUuid().equals(playerUuid)) {
+            if (!gang.getLeaderUuid().equals(playerUuid)) {
                 player.sendMessage(miniMessage.deserialize(messages.get("not_leader")));
                 return;
             }
@@ -67,8 +67,8 @@ public class DescriptionCommand {
             }
 
             
-            guild.setDescription(descriptionText);
-            storageManager.updateGuild(guild).thenAcceptAsync(success -> {
+            gang.setDescription(descriptionText);
+            storageManager.updateGang(gang).thenAcceptAsync(success -> {
                 if (success) {
                     player.sendMessage(miniMessage.deserialize(messages.get("description_set"),
                             Placeholder.unparsed("description", descriptionText)));
@@ -76,12 +76,12 @@ public class DescriptionCommand {
                     player.sendMessage(miniMessage.deserialize(messages.get("error"))); 
                 }
             }).exceptionally(ex -> { 
-                plugin.getLogger().severe("Error updating guild description for " + guild.getName() + ": " + ex.getMessage());
+                plugin.getLogger().severe("Error updating gang description for " + gang.getName() + ": " + ex.getMessage());
                 player.sendMessage(miniMessage.deserialize(messages.get("error")));
                 return null;
             });
         }).exceptionally(ex -> { 
-            plugin.getLogger().severe("Error fetching guild for player " + playerUuid + ": " + ex.getMessage());
+            plugin.getLogger().severe("Error fetching gang for player " + playerUuid + ": " + ex.getMessage());
             player.sendMessage(miniMessage.deserialize(messages.get("error")));
             return null;
         });

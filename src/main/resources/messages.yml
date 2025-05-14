@@ -1,68 +1,68 @@
-created: "<green>Guild created successfully!"
-already_in_guild: "<red>You are already in a guild."
+created: "<green>Gang created successfully!"
+already_in_gang: "<red>You are already in a gang."
 cannot_kick_self: "<red>You cannot kick yourself."
-not_in_guild: "<red>You are not in a guild."
-not_leader: "<red>Only the guild leader can do this."
-name_invalid: "<red>Invalid guild name."
-player_not_in_your_guild: "<red><player> is not in your guild."
-name_taken: "<red>That guild name is already taken."
+not_in_gang: "<red>You are not in a gang."
+not_leader: "<red>Only the gang leader can do this."
+name_invalid: "<red>Invalid gang name."
+player_not_in_your_gang: "<red><player> is not in your gang."
+name_taken: "<red>That gang name is already taken."
 invite_sent: "<green>Invite sent to <player>!"
-invite_received: "<yellow>You have been invited to join <guild> by <leader>."
+invite_received: "<yellow>You have been invited to join <gang> by <leader>."
 invite_exists: "<red>You already have a pending invite."
 invite_none: "<red>You have no pending invites."
-joined: "<green>You have joined the guild <guild>."
-kicked: "<red>You have been kicked from the guild."
-member_kicked: "<green><player> has been kicked from the guild."
-you_were_kicked_by: "<red>You have been kicked from the guild by <kicker>."
-left: "<yellow>You have left the guild."
-disband_confirm: "<red>Type /guild disband confirm to disband your guild. This cannot be undone."
-disbanded: "<red>Your guild has been disbanded."
-description_set: "<green>Guild description updated."
+joined: "<green>You have joined the gang <gang>."
+kicked: "<red>You have been kicked from the gang."
+member_kicked: "<green><player> has been kicked from the gang."
+you_were_kicked_by: "<red>You have been kicked from the gang by <kicker>."
+left: "<yellow>You have left the gang."
+disband_confirm: "<red>Type /gangs disband confirm to disband your gang. This cannot be undone."
+disbanded: "<red>Your gang has been disbanded."
+description_set: "<green>Gang description updated."
 description_too_long: "<red>Description is too long."
-info_header: "<aqua>Guild Info: <guild>"
+info_header: "<aqua>Gang Info: <gang>"
 info_leader: "<gray>Leader: <leader>"
 info_members: "<gray>Members: <members>"
 info_description: "<gray>Description: <description>"
-list_header: "<aqua>Guilds List (Page <page>/<pages>):"
-list_entry: "<gray><guild> - <count> members"
-list_empty: "<gray>There are no guilds to display."
+list_header: "<aqua>Gangs List (Page <page>/<pages>):"
+list_entry: "<gray><gang> - <count> members"
+list_empty: "<gray>There are no gangs to display."
 error: "<red>An error occurred. Please contact an admin."
 no_permission: "<red>You do not have permission to do that."
 player_not_found: "<red>Player not found or not online."
 usage: "<yellow>Usage: <usage>"
-admin_rename_success: "<green>Guild renamed successfully."
-admin_description_wiped: "<green>Guild description wiped."
-admin_disbanded: "<red>Guild has been disbanded by an admin."
-leave_leader_deny: "<red>As the guild leader, you must disband the guild instead of leaving it. Use /guild disband."
-left_notify: "<yellow><player> has left your guild."
-leader_must_transfer_or_disband: "<red>As the guild leader, you must transfer leadership or disband the guild before leaving."
+admin_rename_success: "<green>Gang renamed successfully."
+admin_description_wiped: "<green>Gang description wiped."
+admin_disbanded: "<red>Gang has been disbanded by an admin."
+leave_leader_deny: "<red>As the gang leader, you must disband the gang instead of leaving it. Use /gangs disband."
+left_notify: "<yellow><player> has left your gang."
+leader_must_transfer_or_disband: "<red>As the gang leader, you must transfer leadership or disband the gang before leaving."
 help: |
-  <gold><bold>Guilds Plugin Help</bold></gold>
-  <yellow>/guild create <name></yellow> <gray>- Create a new guild</gray>
-  <yellow>/guild invite <player></yellow> <gray>- Invite a player</gray>
-  <yellow>/guild join <name></yellow> <gray>- Join a guild</gray>
-  <yellow>/guild leave</yellow> <gray>- Leave your current guild</gray>
-  <yellow>/guild kick <player></yellow> <gray>- Kick a member</gray>
-  <yellow>/guild description <text></yellow> <gray>- Set guild description</gray>
-  <yellow>/guild info [name]</yellow> <gray>- View info about a guild</gray>
-  <yellow>/guild list [page]</yellow> <gray>- List all guilds</gray>
-  <yellow>/guild disband</yellow> <gray>- Disband your guild (leader only)</gray>
-  <yellow>/guild admin ...</yellow> <gray>- Admin subcommands (rename, wipe description, disband any guild, etc.)</gray>
-  <yellow>/gc <message></yellow> <gray>- Send a message to your guild chat</gray>
-  <gray>For more info: /guild help</gray>
+  <gold><bold>Gangs Plugin Help</bold></gold>
+  <yellow>/gangs create <name></yellow> <gray>- Create a new gang</gray>
+  <yellow>/gangs invite <player></yellow> <gray>- Invite a player</gray>
+  <yellow>/gangs join <name></yellow> <gray>- Join a gang</gray>
+  <yellow>/gangs leave</yellow> <gray>- Leave your current gang</gray>
+  <yellow>/gangs kick <player></yellow> <gray>- Kick a member</gray>
+  <yellow>/gangs description <text></yellow> <gray>- Set gang description</gray>
+  <yellow>/gangs info [name]</yellow> <gray>- View info about a gang</gray>
+  <yellow>/gangs list [page]</yellow> <gray>- List all gangs</gray>
+  <yellow>/gangs disband</yellow> <gray>- Disband your gang (leader only)</gray>
+  <yellow>/gangs admin ...</yellow> <gray>- Admin subcommands (rename, wipe description, disband any gang, etc.)</gray>
+  <yellow>/gc <message></yellow> <gray>- Send a message to your gang chat</gray>
+  <gray>For more info: /gangs help</gray>
 command_player_only: "<red>Only players can use this command."
-create_already_in_guild: "<red>You are already in a guild."
-create_invalid_length: "<red>Guild name must be between 3 and 16 characters."
-create_invalid_characters: "<red>Guild name can only contain letters and numbers."
+create_already_in_gang: "<red>You are already in a gang."
+create_invalid_length: "<red>Gang name must be between 3 and 16 characters."
+create_invalid_characters: "<red>Gang name can only contain letters and numbers."
 create_name_taken: "<red>The name <name> is already taken."
-create_success: "<green>Guild <name> created successfully!"
-create_error: "<red>An error occurred while creating the guild."
-not_guild_leader: "<red>You are not the guild leader."
+create_success: "<green>Gang <name> created successfully!"
+create_error: "<red>An error occurred while creating the gang."
+not_gang_leader: "<red>You are not the gang leader."
 no_pending_confirmation: "<red>You have no pending confirmation."
 invalid_confirmation: "<red>This confirmation is invalid."
 confirmation_expired: "<red>Your confirmation has expired. Please try again."
-guild_disbanded: "<red>Your guild has been disbanded."
-guild_disbanded_member: "<red>Your guild was disbanded by the leader."
+gang_disbanded: "<red>Your gang has been disbanded."
+gang_disbanded_member: "<red>Your gang was disbanded by the leader."
 command_error: "<red>An error occurred. Please contact an admin."
 invite_cannot_invite_self: "<red>You cannot invite yourself."
-invite_already_in_guild: "<red>That player is already in a guild." 
+invite_already_in_gang: "<red>That player is already in a gang." 

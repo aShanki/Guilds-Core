@@ -1,11 +1,11 @@
-package com.ashank.guilds.data;
+package com.ashank.gangs.data;
 
 import java.util.UUID;
 
 
 public record PendingInvite(
         UUID invitedPlayerUuid,
-        UUID guildId,
+        UUID gangId,
         UUID inviterUuid,
         long timestamp
 ) {} 

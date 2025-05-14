@@ -1,9 +1,9 @@
-package com.ashank.guilds.commands.sub;
+package com.ashank.gangs.commands.sub;
 
-import com.ashank.guilds.GuildsPlugin;
-import com.ashank.guilds.data.Confirmation;
-import com.ashank.guilds.data.StorageManager;
-import com.ashank.guilds.managers.Messages;
+import com.ashank.gangs.GangsPlugin;
+import com.ashank.gangs.data.Confirmation;
+import com.ashank.gangs.data.StorageManager;
+import com.ashank.gangs.managers.Messages;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -17,18 +17,18 @@ import java.util.UUID;
 
 public class DisbandCommand {
     
-    public static LiteralArgumentBuilder<CommandSourceStack> build(GuildsPlugin plugin) {
+    public static LiteralArgumentBuilder<CommandSourceStack> build(GangsPlugin plugin) {
         StorageManager storageManager = plugin.getStorageManager();
         Messages messages = plugin.getMessages();
         MiniMessage miniMessage = MiniMessage.miniMessage();
 
         return LiteralArgumentBuilder.<CommandSourceStack>literal("disband")
-                .requires(source -> source.getSender() instanceof Player && source.getSender().hasPermission("guilds.command.disband"))
+                .requires(source -> source.getSender() instanceof Player && source.getSender().hasPermission("gangs.command.disband"))
                 .executes(context -> executeDisband(context, plugin, storageManager, messages, miniMessage))
-                .then(com.ashank.guilds.commands.sub.DisbandConfirmCommand.build(plugin));
+                .then(com.ashank.gangs.commands.sub.DisbandConfirmCommand.build(plugin));
     }
 
-    private static int executeDisband(CommandContext<CommandSourceStack> context, GuildsPlugin plugin,
+    private static int executeDisband(CommandContext<CommandSourceStack> context, GangsPlugin plugin,
             StorageManager storageManager, Messages messages, MiniMessage miniMessage) {
         CommandSender sender = context.getSource().getSender();
 
@@ -41,29 +41,29 @@ public class DisbandCommand {
         UUID playerUuid = player.getUniqueId();
 
         
-        storageManager.getPlayerGuildId(playerUuid).thenAcceptAsync(guildIdOptional -> {
-            if (guildIdOptional.isEmpty()) {
-                player.sendMessage(miniMessage.deserialize(messages.get("not_in_guild")));
+        storageManager.getPlayerGangId(playerUuid).thenAcceptAsync(gangIdOptional -> {
+            if (gangIdOptional.isEmpty()) {
+                player.sendMessage(miniMessage.deserialize(messages.get("not_in_gang")));
                 return;
             }
 
-            UUID guildId = guildIdOptional.get();
+            UUID gangId = gangIdOptional.get();
             
-            storageManager.getGuildById(guildId).thenAcceptAsync(guildOpt -> {
-                if (guildOpt.isEmpty()) {
+            storageManager.getGangById(gangId).thenAcceptAsync(gangOpt -> {
+                if (gangOpt.isEmpty()) {
                     player.sendMessage(miniMessage.deserialize(messages.get("command_error")));
                     return;
                 }
 
                 
-                if (!guildOpt.get().getLeaderUuid().equals(playerUuid)) {
-                    player.sendMessage(miniMessage.deserialize(messages.get("not_guild_leader")));
+                if (!gangOpt.get().getLeaderUuid().equals(playerUuid)) {
+                    player.sendMessage(miniMessage.deserialize(messages.get("not_gang_leader")));
                     return;
                 }
 
                 
                 long timestamp = System.currentTimeMillis();
-                Confirmation confirmation = new Confirmation(playerUuid, "disband", guildId, timestamp);
+                Confirmation confirmation = new Confirmation(playerUuid, "disband", gangId, timestamp);
                 storageManager.addConfirmation(confirmation).thenAcceptAsync(v -> {
                     
                     player.sendMessage(miniMessage.deserialize(messages.get("disband_confirm")));
@@ -74,13 +74,13 @@ public class DisbandCommand {
                     return null;
                 });
             }).exceptionally(ex -> {
-                plugin.getLogger().severe("Error checking guild leadership: " + ex.getMessage());
+                plugin.getLogger().severe("Error checking gang leadership: " + ex.getMessage());
                 ex.printStackTrace();
                 player.sendMessage(miniMessage.deserialize(messages.get("command_error")));
                 return null;
             });
         }).exceptionally(ex -> {
-            plugin.getLogger().severe("Error getting player's guild: " + ex.getMessage());
+            plugin.getLogger().severe("Error getting player's gang: " + ex.getMessage());
             ex.printStackTrace();
             player.sendMessage(miniMessage.deserialize(messages.get("command_error")));
             return null;

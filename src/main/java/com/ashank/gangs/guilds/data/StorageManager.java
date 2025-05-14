@@ -1,6 +1,6 @@
-package com.ashank.guilds.data;
+package com.ashank.gangs.data;
 
-import com.ashank.guilds.Guild; 
+import com.ashank.gangs.Gang; 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.bukkit.configuration.ConfigurationSection;
@@ -42,7 +42,7 @@ public class StorageManager {
             HikariConfig config = new HikariConfig();
             config.setJdbcUrl("jdbc:mysql://" + mysqlConfig.getString("host", "localhost") + ":"
                     + mysqlConfig.getInt("port", 3306) + "/"
-                    + mysqlConfig.getString("database", "guilds") + "?useSSL=false&autoReconnect=true"); 
+                    + mysqlConfig.getString("database", "gangs") + "?useSSL=false&autoReconnect=true"); 
             config.setUsername(mysqlConfig.getString("username"));
             config.setPassword(mysqlConfig.getString("password"));
             config.setMaximumPoolSize(mysqlConfig.getInt("pool-size", 10));
@@ -128,18 +128,18 @@ public class StorageManager {
     
 
     
-    public CompletableFuture<Void> createGuild(Guild guild) {
-        String sql = "INSERT INTO guilds (id, name, leader_uuid, description) VALUES (?, ?, ?, ?)";
+    public CompletableFuture<Void> createGang(Gang gang) {
+        String sql = "INSERT INTO gangs (id, name, leader_uuid, description) VALUES (?, ?, ?, ?)";
         return getConnection().thenComposeAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setString(1, guild.getGuildId().toString());
-                ps.setString(2, guild.getName());
-                ps.setString(3, guild.getLeaderUuid().toString());
-                ps.setString(4, guild.getDescription()); 
+                ps.setString(1, gang.getGangId().toString());
+                ps.setString(2, gang.getName());
+                ps.setString(3, gang.getLeaderUuid().toString());
+                ps.setString(4, gang.getDescription()); 
                 ps.executeUpdate();
                 return CompletableFuture.completedFuture(null);
             } catch (SQLException e) {
-                plugin.getLogger().log(Level.SEVERE, "Could not create guild: " + guild.getName(), e);
+                plugin.getLogger().log(Level.SEVERE, "Could not create gang: " + gang.getName(), e);
                 return CompletableFuture.failedFuture(e);
             } finally {
                 try { conn.close(); } catch (SQLException e) { plugin.getLogger().log(Level.WARNING, "Error closing connection", e); }
@@ -148,142 +148,142 @@ public class StorageManager {
     }
 
     
-    public CompletableFuture<Optional<Guild>> getGuildById(UUID guildId) {
-        String sql = "SELECT id, name, leader_uuid, description FROM guilds WHERE id = ?";
-        final CompletableFuture<Optional<Guild>> guildFuture = new CompletableFuture<>();
+    public CompletableFuture<Optional<Gang>> getGangById(UUID gangId) {
+        String sql = "SELECT id, name, leader_uuid, description FROM gangs WHERE id = ?";
+        final CompletableFuture<Optional<Gang>> gangFuture = new CompletableFuture<>();
 
         getConnection().thenAcceptAsync(conn -> {
-            Optional<Guild> foundGuild = Optional.empty();
+            Optional<Gang> foundGang = Optional.empty();
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setString(1, guildId.toString());
+                ps.setString(1, gangId.toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
-                        foundGuild = Optional.of(mapResultSetToGuild(rs)); 
+                        foundGang = Optional.of(mapResultSetToGang(rs)); 
                     }
                 }
             } catch (SQLException e) {
-                plugin.getLogger().log(Level.SEVERE, "Could not retrieve guild by ID: " + guildId, e);
-                guildFuture.completeExceptionally(e);
+                plugin.getLogger().log(Level.SEVERE, "Could not retrieve gang by ID: " + gangId, e);
+                gangFuture.completeExceptionally(e);
                 return;
             } finally {
                 try { conn.close(); } catch (SQLException e) { plugin.getLogger().log(Level.WARNING, "Error closing connection", e); }
             }
 
-            if (foundGuild.isPresent()) {
-                Guild guild = foundGuild.get();
-                getGuildMembers(guild.getGuildId()).thenAccept(members -> {
-                    members.forEach(guild::addMember); 
-                    guildFuture.complete(Optional.of(guild));
+            if (foundGang.isPresent()) {
+                Gang gang = foundGang.get();
+                getGangMembers(gang.getGangId()).thenAccept(members -> {
+                    members.forEach(gang::addMember); 
+                    gangFuture.complete(Optional.of(gang));
                 }).exceptionally(ex -> {
-                    plugin.getLogger().log(Level.SEVERE, "Failed to fetch members for guild ID: " + guildId, ex);
-                    guildFuture.completeExceptionally(ex);
+                    plugin.getLogger().log(Level.SEVERE, "Failed to fetch members for gang ID: " + gangId, ex);
+                    gangFuture.completeExceptionally(ex);
                     return null;
                 });
             } else {
-                guildFuture.complete(Optional.empty());
+                gangFuture.complete(Optional.empty());
             }
         });
 
-        return guildFuture;
+        return gangFuture;
     }
 
      
-    public CompletableFuture<Optional<Guild>> getGuildByName(String name) {
+    public CompletableFuture<Optional<Gang>> getGangByName(String name) {
         
-        String sql = "SELECT id, name, leader_uuid, description FROM guilds WHERE LOWER(name) = LOWER(?)";
-        final CompletableFuture<Optional<Guild>> guildFuture = new CompletableFuture<>();
+        String sql = "SELECT id, name, leader_uuid, description FROM gangs WHERE LOWER(name) = LOWER(?)";
+        final CompletableFuture<Optional<Gang>> gangFuture = new CompletableFuture<>();
 
         getConnection().thenAcceptAsync(conn -> {
-            Optional<Guild> foundGuild = Optional.empty();
+            Optional<Gang> foundGang = Optional.empty();
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setString(1, name);
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
-                         foundGuild = Optional.of(mapResultSetToGuild(rs)); 
+                         foundGang = Optional.of(mapResultSetToGang(rs)); 
                     }
                 }
             } catch (SQLException e) {
-                plugin.getLogger().log(Level.SEVERE, "Could not retrieve guild by name: " + name, e);
-                guildFuture.completeExceptionally(e);
+                plugin.getLogger().log(Level.SEVERE, "Could not retrieve gang by name: " + name, e);
+                gangFuture.completeExceptionally(e);
                 return;
             } finally {
                 try { conn.close(); } catch (SQLException e) { plugin.getLogger().log(Level.WARNING, "Error closing connection", e); }
             }
 
-            if (foundGuild.isPresent()) {
-                Guild guild = foundGuild.get();
-                getGuildMembers(guild.getGuildId()).thenAccept(members -> {
-                    members.forEach(guild::addMember); 
-                    guildFuture.complete(Optional.of(guild));
+            if (foundGang.isPresent()) {
+                Gang gang = foundGang.get();
+                getGangMembers(gang.getGangId()).thenAccept(members -> {
+                    members.forEach(gang::addMember); 
+                    gangFuture.complete(Optional.of(gang));
                 }).exceptionally(ex -> {
-                    plugin.getLogger().log(Level.SEVERE, "Failed to fetch members for guild name: " + name, ex);
-                    guildFuture.completeExceptionally(ex); 
+                    plugin.getLogger().log(Level.SEVERE, "Failed to fetch members for gang name: " + name, ex);
+                    gangFuture.completeExceptionally(ex); 
                     return null;
                 });
             } else {
-                guildFuture.complete(Optional.empty());
+                gangFuture.complete(Optional.empty());
             }
         });
-        return guildFuture;
+        return gangFuture;
     }
 
     
-    public CompletableFuture<Optional<Guild>> getGuildByLeader(UUID leaderUuid) {
-        String sql = "SELECT id, name, leader_uuid, description FROM guilds WHERE leader_uuid = ?";
-        final CompletableFuture<Optional<Guild>> guildFuture = new CompletableFuture<>();
+    public CompletableFuture<Optional<Gang>> getGangByLeader(UUID leaderUuid) {
+        String sql = "SELECT id, name, leader_uuid, description FROM gangs WHERE leader_uuid = ?";
+        final CompletableFuture<Optional<Gang>> gangFuture = new CompletableFuture<>();
 
         getConnection().thenAcceptAsync(conn -> {
-            Optional<Guild> foundGuild = Optional.empty();
+            Optional<Gang> foundGang = Optional.empty();
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setString(1, leaderUuid.toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
-                        foundGuild = Optional.of(mapResultSetToGuild(rs)); 
+                        foundGang = Optional.of(mapResultSetToGang(rs)); 
                     }
                 }
             } catch (SQLException e) {
-                plugin.getLogger().log(Level.SEVERE, "Could not retrieve guild by leader UUID: " + leaderUuid, e);
-                guildFuture.completeExceptionally(e);
+                plugin.getLogger().log(Level.SEVERE, "Could not retrieve gang by leader UUID: " + leaderUuid, e);
+                gangFuture.completeExceptionally(e);
                 return;
             } finally {
                 try { conn.close(); } catch (SQLException e) { plugin.getLogger().log(Level.WARNING, "Error closing connection", e); }
             }
 
-            if (foundGuild.isPresent()) {
-                Guild guild = foundGuild.get();
-                getGuildMembers(guild.getGuildId()).thenAccept(members -> {
-                    members.forEach(guild::addMember); 
-                    guildFuture.complete(Optional.of(guild));
+            if (foundGang.isPresent()) {
+                Gang gang = foundGang.get();
+                getGangMembers(gang.getGangId()).thenAccept(members -> {
+                    members.forEach(gang::addMember); 
+                    gangFuture.complete(Optional.of(gang));
                 }).exceptionally(ex -> {
-                    plugin.getLogger().log(Level.SEVERE, "Failed to fetch members for guild with leader: " + leaderUuid, ex);
-                    guildFuture.completeExceptionally(ex);
+                    plugin.getLogger().log(Level.SEVERE, "Failed to fetch members for gang with leader: " + leaderUuid, ex);
+                    gangFuture.completeExceptionally(ex);
                     return null;
                 });
             } else {
-                guildFuture.complete(Optional.empty());
+                gangFuture.complete(Optional.empty());
             }
         });
 
-        return guildFuture;
+        return gangFuture;
     }
 
     
-    public CompletableFuture<List<Guild>> getAllGuilds() {
-        String sql = "SELECT id, name, leader_uuid, description FROM guilds";
-        final CompletableFuture<List<Guild>> guildsFuture = new CompletableFuture<>();
+    public CompletableFuture<List<Gang>> getAllGangs() {
+        String sql = "SELECT id, name, leader_uuid, description FROM gangs";
+        final CompletableFuture<List<Gang>> gangsFuture = new CompletableFuture<>();
 
         getConnection().thenAcceptAsync(conn -> {
-            List<Guild> guilds = new ArrayList<>();
+            List<Gang> gangs = new ArrayList<>();
             List<CompletableFuture<Void>> memberFetchFutures = new ArrayList<>();
             try (PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    Guild guild = mapResultSetToGuild(rs);
-                    guilds.add(guild);
+                    Gang gang = mapResultSetToGang(rs);
+                    gangs.add(gang);
                     
-                    CompletableFuture<Void> memberFuture = getGuildMembers(guild.getGuildId())
-                        .thenAccept(members -> members.forEach(guild::addMember))
+                    CompletableFuture<Void> memberFuture = getGangMembers(gang.getGangId())
+                        .thenAccept(members -> members.forEach(gang::addMember))
                         .exceptionally(ex -> {
-                             plugin.getLogger().log(Level.SEVERE, "Failed to fetch members for guild: " + guild.getName(), ex);
+                             plugin.getLogger().log(Level.SEVERE, "Failed to fetch members for gang: " + gang.getName(), ex);
                              
                              
                              
@@ -293,8 +293,8 @@ public class StorageManager {
                     memberFetchFutures.add(memberFuture);
                 }
             } catch (SQLException e) {
-                plugin.getLogger().log(Level.SEVERE, "Could not retrieve all guilds", e);
-                guildsFuture.completeExceptionally(e);
+                plugin.getLogger().log(Level.SEVERE, "Could not retrieve all gangs", e);
+                gangsFuture.completeExceptionally(e);
                 return;
             } finally {
                  try { conn.close(); } catch (SQLException e) { plugin.getLogger().log(Level.WARNING, "Error closing connection", e); }
@@ -307,37 +307,37 @@ public class StorageManager {
                         
                         
                         
-                        if (!guildsFuture.isDone()) {
-                            plugin.getLogger().log(Level.SEVERE, "One or more member fetches failed during getAllGuilds", ex);
-                            guildsFuture.completeExceptionally(ex);
+                        if (!gangsFuture.isDone()) {
+                            plugin.getLogger().log(Level.SEVERE, "One or more member fetches failed during getAllGangs", ex);
+                            gangsFuture.completeExceptionally(ex);
                         }
                     } else {
                         
-                         if (!guildsFuture.isDone()) {
-                            guildsFuture.complete(guilds);
+                         if (!gangsFuture.isDone()) {
+                            gangsFuture.complete(gangs);
                         }
                     }
                 });
 
         });
 
-        return guildsFuture;
+        return gangsFuture;
     }
 
 
      
-    public CompletableFuture<Boolean> updateGuild(Guild guild) {
-        String sql = "UPDATE guilds SET name = ?, description = ?, leader_uuid = ? WHERE id = ?";
+    public CompletableFuture<Boolean> updateGang(Gang gang) {
+        String sql = "UPDATE gangs SET name = ?, description = ?, leader_uuid = ? WHERE id = ?";
         return getConnection().thenApplyAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setString(1, guild.getName());
-                ps.setString(2, guild.getDescription());
-                ps.setString(3, guild.getLeaderUuid().toString());
-                ps.setString(4, guild.getGuildId().toString());
+                ps.setString(1, gang.getName());
+                ps.setString(2, gang.getDescription());
+                ps.setString(3, gang.getLeaderUuid().toString());
+                ps.setString(4, gang.getGangId().toString());
                 int rowsAffected = ps.executeUpdate();
                 return rowsAffected > 0;
             } catch (SQLException e) {
-                plugin.getLogger().log(Level.SEVERE, "Could not update guild: " + guild.getName(), e);
+                plugin.getLogger().log(Level.SEVERE, "Could not update gang: " + gang.getName(), e);
                 return false;
             } finally {
                  try { conn.close(); } catch (SQLException e) { plugin.getLogger().log(Level.WARNING, "Error closing connection", e); }
@@ -346,15 +346,15 @@ public class StorageManager {
     }
 
     
-    public CompletableFuture<Boolean> deleteGuild(UUID guildId) {
-        String sql = "DELETE FROM guilds WHERE id = ?";
+    public CompletableFuture<Boolean> deleteGang(UUID gangId) {
+        String sql = "DELETE FROM gangs WHERE id = ?";
         return getConnection().thenApplyAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setString(1, guildId.toString());
+                ps.setString(1, gangId.toString());
                 int rowsAffected = ps.executeUpdate();
                 return rowsAffected > 0;
             } catch (SQLException e) {
-                plugin.getLogger().log(Level.SEVERE, "Could not delete guild: " + guildId, e);
+                plugin.getLogger().log(Level.SEVERE, "Could not delete gang: " + gangId, e);
                 return false;
             } finally {
                  try { conn.close(); } catch (SQLException e) { plugin.getLogger().log(Level.WARNING, "Error closing connection", e); }
@@ -366,16 +366,16 @@ public class StorageManager {
     
 
     
-    public CompletableFuture<Void> addGuildMember(UUID guildId, UUID playerUuid) {
-        String sql = "INSERT INTO guild_members (guild_id, player_uuid) VALUES (?, ?) ON DUPLICATE KEY UPDATE guild_id=guild_id"; 
+    public CompletableFuture<Void> addGangMember(UUID gangId, UUID playerUuid) {
+        String sql = "INSERT INTO gang_members (gang_id, player_uuid) VALUES (?, ?) ON DUPLICATE KEY UPDATE gang_id=gang_id"; 
         return getConnection().thenComposeAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setString(1, guildId.toString());
+                ps.setString(1, gangId.toString());
                 ps.setString(2, playerUuid.toString());
                 ps.executeUpdate();
                 return CompletableFuture.completedFuture(null);
             } catch (SQLException e) {
-                plugin.getLogger().log(Level.SEVERE, "Could not add member " + playerUuid + " to guild " + guildId, e);
+                plugin.getLogger().log(Level.SEVERE, "Could not add member " + playerUuid + " to gang " + gangId, e);
                  return CompletableFuture.failedFuture(e);
             } finally {
                  try { conn.close(); } catch (SQLException e) { plugin.getLogger().log(Level.WARNING, "Error closing connection", e); }
@@ -384,16 +384,16 @@ public class StorageManager {
     }
 
      
-    public CompletableFuture<Boolean> removeGuildMember(UUID guildId, UUID playerUuid) {
-        String sql = "DELETE FROM guild_members WHERE guild_id = ? AND player_uuid = ?";
+    public CompletableFuture<Boolean> removeGangMember(UUID gangId, UUID playerUuid) {
+        String sql = "DELETE FROM gang_members WHERE gang_id = ? AND player_uuid = ?";
         return getConnection().thenApplyAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setString(1, guildId.toString());
+                ps.setString(1, gangId.toString());
                 ps.setString(2, playerUuid.toString());
                 int rowsAffected = ps.executeUpdate();
                 return rowsAffected > 0;
             } catch (SQLException e) {
-                plugin.getLogger().log(Level.SEVERE, "Could not remove member " + playerUuid + " from guild " + guildId, e);
+                plugin.getLogger().log(Level.SEVERE, "Could not remove member " + playerUuid + " from gang " + gangId, e);
                 return false;
             } finally {
                  try { conn.close(); } catch (SQLException e) { plugin.getLogger().log(Level.WARNING, "Error closing connection", e); }
@@ -402,21 +402,21 @@ public class StorageManager {
     }
 
      
-    public CompletableFuture<Set<UUID>> getGuildMembers(UUID guildId) {
-        String sql = "SELECT player_uuid FROM guild_members WHERE guild_id = ?";
+    public CompletableFuture<Set<UUID>> getGangMembers(UUID gangId) {
+        String sql = "SELECT player_uuid FROM gang_members WHERE gang_id = ?";
         return getConnection().thenApplyAsync(conn -> {
             Set<UUID> members = new HashSet<>();
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setString(1, guildId.toString());
+                ps.setString(1, gangId.toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
                         members.add(UUID.fromString(rs.getString("player_uuid")));
                     }
                 }
             } catch (SQLException e) {
-                plugin.getLogger().log(Level.SEVERE, "Could not retrieve members for guild: " + guildId, e);
+                plugin.getLogger().log(Level.SEVERE, "Could not retrieve members for gang: " + gangId, e);
             } catch (IllegalArgumentException e) {
-                plugin.getLogger().log(Level.SEVERE, "Invalid UUID format in guild_members table for guild: " + guildId, e);
+                plugin.getLogger().log(Level.SEVERE, "Invalid UUID format in gang_members table for gang: " + gangId, e);
             } finally {
                  try { conn.close(); } catch (SQLException e) { plugin.getLogger().log(Level.WARNING, "Error closing connection", e); }
             }
@@ -425,20 +425,20 @@ public class StorageManager {
     }
 
      
-    public CompletableFuture<Optional<UUID>> getPlayerGuildId(UUID playerUuid) {
-        String sql = "SELECT guild_id FROM guild_members WHERE player_uuid = ?";
+    public CompletableFuture<Optional<UUID>> getPlayerGangId(UUID playerUuid) {
+        String sql = "SELECT gang_id FROM gang_members WHERE player_uuid = ?";
         return getConnection().thenApplyAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setString(1, playerUuid.toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
-                        return Optional.of(UUID.fromString(rs.getString("guild_id")));
+                        return Optional.of(UUID.fromString(rs.getString("gang_id")));
                     }
                 }
             } catch (SQLException e) {
-                plugin.getLogger().log(Level.SEVERE, "Could not retrieve guild for player: " + playerUuid, e);
+                plugin.getLogger().log(Level.SEVERE, "Could not retrieve gang for player: " + playerUuid, e);
             } catch (IllegalArgumentException e) {
-                 plugin.getLogger().log(Level.SEVERE, "Invalid UUID format in guild_members table for player: " + playerUuid, e);
+                 plugin.getLogger().log(Level.SEVERE, "Invalid UUID format in gang_members table for player: " + playerUuid, e);
             } finally {
                  try { conn.close(); } catch (SQLException e) { plugin.getLogger().log(Level.WARNING, "Error closing connection", e); }
             }
@@ -451,12 +451,12 @@ public class StorageManager {
 
     
     public CompletableFuture<Void> addInvite(PendingInvite invite) {
-        String sql = "INSERT INTO invites (invited_uuid, guild_id, inviter_uuid, timestamp) VALUES (?, ?, ?, ?) " +
-                     "ON DUPLICATE KEY UPDATE guild_id = VALUES(guild_id), inviter_uuid = VALUES(inviter_uuid), timestamp = VALUES(timestamp)"; 
+        String sql = "INSERT INTO invites (invited_uuid, gang_id, inviter_uuid, timestamp) VALUES (?, ?, ?, ?) " +
+                     "ON DUPLICATE KEY UPDATE gang_id = VALUES(gang_id), inviter_uuid = VALUES(inviter_uuid), timestamp = VALUES(timestamp)"; 
         return getConnection().thenComposeAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setString(1, invite.invitedPlayerUuid().toString());
-                ps.setString(2, invite.guildId().toString());
+                ps.setString(2, invite.gangId().toString());
                 ps.setString(3, invite.inviterUuid().toString());
                 ps.setLong(4, invite.timestamp());
                 ps.executeUpdate();
@@ -472,7 +472,7 @@ public class StorageManager {
 
      
     public CompletableFuture<Optional<PendingInvite>> getInvite(UUID invitedPlayerUuid) {
-        String sql = "SELECT invited_uuid, guild_id, inviter_uuid, timestamp FROM invites WHERE invited_uuid = ?";
+        String sql = "SELECT invited_uuid, gang_id, inviter_uuid, timestamp FROM invites WHERE invited_uuid = ?";
         return getConnection().thenApplyAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setString(1, invitedPlayerUuid.toString());
@@ -530,13 +530,13 @@ public class StorageManager {
 
      
     public CompletableFuture<Void> addConfirmation(Confirmation confirmation) {
-        String sql = "INSERT INTO confirmations (player_uuid, type, guild_id, timestamp) VALUES (?, ?, ?, ?) " +
-                     "ON DUPLICATE KEY UPDATE type = VALUES(type), guild_id = VALUES(guild_id), timestamp = VALUES(timestamp)"; 
+        String sql = "INSERT INTO confirmations (player_uuid, type, gang_id, timestamp) VALUES (?, ?, ?, ?) " +
+                     "ON DUPLICATE KEY UPDATE type = VALUES(type), gang_id = VALUES(gang_id), timestamp = VALUES(timestamp)"; 
         return getConnection().thenComposeAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setString(1, confirmation.playerUuid().toString());
                 ps.setString(2, confirmation.type());
-                ps.setString(3, confirmation.guildId() != null ? confirmation.guildId().toString() : null); 
+                ps.setString(3, confirmation.gangId() != null ? confirmation.gangId().toString() : null); 
                 ps.setLong(4, confirmation.timestamp());
                 ps.executeUpdate();
                 return CompletableFuture.completedFuture(null);
@@ -551,7 +551,7 @@ public class StorageManager {
 
     
     public CompletableFuture<Optional<Confirmation>> getConfirmation(UUID playerUuid, String type) {
-        String sql = "SELECT player_uuid, type, guild_id, timestamp FROM confirmations WHERE player_uuid = ? AND type = ?";
+        String sql = "SELECT player_uuid, type, gang_id, timestamp FROM confirmations WHERE player_uuid = ? AND type = ?";
         return getConnection().thenApplyAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setString(1, playerUuid.toString());
@@ -608,12 +608,12 @@ public class StorageManager {
 
     
 
-    private Guild mapResultSetToGuild(ResultSet rs) throws SQLException {
+    private Gang mapResultSetToGang(ResultSet rs) throws SQLException {
         
         UUID leaderUuid = UUID.fromString(rs.getString("leader_uuid"));
         Set<UUID> initialMembers = new HashSet<>();
         initialMembers.add(leaderUuid); 
-        return new Guild(
+        return new Gang(
                 UUID.fromString(rs.getString("id")),
                 rs.getString("name"),
                 leaderUuid,
@@ -625,29 +625,29 @@ public class StorageManager {
     private PendingInvite mapResultSetToPendingInvite(ResultSet rs) throws SQLException {
          return new PendingInvite(
                 UUID.fromString(rs.getString("invited_uuid")),
-                UUID.fromString(rs.getString("guild_id")),
+                UUID.fromString(rs.getString("gang_id")),
                 UUID.fromString(rs.getString("inviter_uuid")),
                 rs.getLong("timestamp")
         );
     }
 
      private Confirmation mapResultSetToConfirmation(ResultSet rs) throws SQLException {
-         String guildIdString = rs.getString("guild_id");
-         UUID guildId = (guildIdString == null || guildIdString.isEmpty()) ? null : UUID.fromString(guildIdString);
+         String gangIdString = rs.getString("gang_id");
+         UUID gangId = (gangIdString == null || gangIdString.isEmpty()) ? null : UUID.fromString(gangIdString);
          return new Confirmation(
                 UUID.fromString(rs.getString("player_uuid")),
                 rs.getString("type"),
-                guildId, 
+                gangId, 
                 rs.getLong("timestamp")
         );
     }
 
     
-    public CompletableFuture<Boolean> isMember(UUID guildId, UUID playerUuid) {
-        String sql = "SELECT COUNT(*) FROM guild_members WHERE guild_id = ? AND player_uuid = ?";
+    public CompletableFuture<Boolean> isMember(UUID gangId, UUID playerUuid) {
+        String sql = "SELECT COUNT(*) FROM gang_members WHERE gang_id = ? AND player_uuid = ?";
         return getConnection().thenApplyAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setString(1, guildId.toString());
+                ps.setString(1, gangId.toString());
                 ps.setString(2, playerUuid.toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
@@ -655,7 +655,7 @@ public class StorageManager {
                     }
                 }
             } catch (SQLException e) {
-                plugin.getLogger().log(Level.SEVERE, "Could not check membership for player: " + playerUuid + " in guild: " + guildId, e);
+                plugin.getLogger().log(Level.SEVERE, "Could not check membership for player: " + playerUuid + " in gang: " + gangId, e);
             } finally {
                  try { conn.close(); } catch (SQLException e) { plugin.getLogger().log(Level.WARNING, "Error closing connection", e); }
             }
@@ -664,10 +664,10 @@ public class StorageManager {
     }
 
     
-    public CompletableFuture<Optional<Guild>> getPlayerGuildAsync(UUID playerUuid) {
-        return getPlayerGuildId(playerUuid).thenComposeAsync(guildIdOpt -> {
-            if (guildIdOpt.isPresent()) {
-                return getGuildById(guildIdOpt.get());
+    public CompletableFuture<Optional<Gang>> getPlayerGangAsync(UUID playerUuid) {
+        return getPlayerGangId(playerUuid).thenComposeAsync(gangIdOpt -> {
+            if (gangIdOpt.isPresent()) {
+                return getGangById(gangIdOpt.get());
             } else {
                 return CompletableFuture.completedFuture(Optional.empty());
             }
@@ -675,8 +675,8 @@ public class StorageManager {
     }
 
     
-    public CompletableFuture<Boolean> isGuildNameTaken(String name) {
-        String sql = "SELECT 1 FROM guilds WHERE LOWER(name) = LOWER(?) LIMIT 1";
+    public CompletableFuture<Boolean> isGangNameTaken(String name) {
+        String sql = "SELECT 1 FROM gangs WHERE LOWER(name) = LOWER(?) LIMIT 1";
         return getConnection().thenApplyAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setString(1, name);
@@ -684,9 +684,9 @@ public class StorageManager {
                     return rs.next(); 
                 }
             } catch (SQLException e) {
-                plugin.getLogger().log(Level.SEVERE, "Could not check if guild name is taken: " + name, e);
+                plugin.getLogger().log(Level.SEVERE, "Could not check if gang name is taken: " + name, e);
                  
-                throw new RuntimeException("Database error checking guild name uniqueness", e);
+                throw new RuntimeException("Database error checking gang name uniqueness", e);
             } finally {
                 try { conn.close(); } catch (SQLException e) { plugin.getLogger().log(Level.WARNING, "Error closing connection", e); }
             }
@@ -694,18 +694,18 @@ public class StorageManager {
     }
 
     
-    public CompletableFuture<Boolean> updateGuildName(UUID guildId, String newName) {
-        String sql = "UPDATE guilds SET name = ? WHERE id = ?";
+    public CompletableFuture<Boolean> updateGangName(UUID gangId, String newName) {
+        String sql = "UPDATE gangs SET name = ? WHERE id = ?";
         return getConnection().thenApplyAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setString(1, newName);
-                ps.setString(2, guildId.toString());
+                ps.setString(2, gangId.toString());
                 int affectedRows = ps.executeUpdate();
                 return affectedRows > 0; 
             } catch (SQLException e) {
-                plugin.getLogger().log(Level.SEVERE, "Could not update guild name for ID: " + guildId, e);
+                plugin.getLogger().log(Level.SEVERE, "Could not update gang name for ID: " + gangId, e);
                 
-                throw new RuntimeException("Database error updating guild name", e);
+                throw new RuntimeException("Database error updating gang name", e);
             } finally {
                 try { conn.close(); } catch (SQLException e) { plugin.getLogger().log(Level.WARNING, "Error closing connection", e); }
             }
@@ -713,8 +713,8 @@ public class StorageManager {
     }
 
     
-    public CompletableFuture<String> getGuildNameForPlayer(UUID playerUuid) {
-        return getPlayerGuildAsync(playerUuid).thenApply(optGuild -> optGuild.map(Guild::getName).orElse(null));
+    public CompletableFuture<String> getGangNameForPlayer(UUID playerUuid) {
+        return getPlayerGangAsync(playerUuid).thenApply(optGang -> optGang.map(Gang::getName).orElse(null));
     }
 
 }

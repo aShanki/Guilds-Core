@@ -39,3 +39,30 @@ placeholder:
 default-no-guild-value: "None"
 
 # --- End of config ---
+
+# Gangs Plugin Configuration
+
+# MySQL Database Connection Settings
+mysql:
+  host: localhost
+  port: 3306
+  database: gangs
+  username: gangs_user
+  password: "secret" # Use quotes if your password contains special characters
+  pool-size: 10 # Recommended: 10
+
+# Gang Settings
+gang:
+  # Time in seconds before a pending gang invite expires. Default: 3600 (1 hour)
+  invites:
+    expiry-seconds: 3600
+
+# Gang List Command Settings
+list:
+  items-per-page: 10
+
+# Default value returned by %gang_name% when a player is not in a gang.
+no-gang-value: "None"
+
+# Default value for no gang (used in placeholders, etc.)
+default-no-gang-value: "None"

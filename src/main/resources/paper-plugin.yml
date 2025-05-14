@@ -1,7 +1,7 @@
-name: Guilds
+name: Gangs
 version: 1.0.0
-bootstrapper: com.ashank.guilds.GuildsPluginBootstrap
-main: com.ashank.guilds.GuildsPlugin
+bootstrapper: com.ashank.gangs.GangsPluginBootstrap
+main: com.ashank.gangs.GangsPlugin
 api-version: '1.21'
 author: Ashank 
 dependencies:

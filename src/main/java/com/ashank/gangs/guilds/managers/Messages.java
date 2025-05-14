@@ -1,4 +1,4 @@
-package com.ashank.guilds.managers;
+package com.ashank.gangs.managers;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
