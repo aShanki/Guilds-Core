@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.UUID; 
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
+import java.util.Enumeration;
 
 
 
@@ -75,11 +76,17 @@ public class StorageManager {
                 try {
                     Flyway flyway = Flyway.configure()
                             .dataSource(dataSource)
-                            .locations("classpath:db/migration") 
+                            .locations("filesystem:migrations") 
                             .baselineOnMigrate(true) 
                             .load();
+                    plugin.getLogger().info("Flyway available migrations: " + java.util.Arrays.toString(flyway.info().all()));
                     flyway.migrate();
                     plugin.getLogger().info("Database schema migration completed successfully.");
+
+                    Enumeration<java.net.URL> migrationsResources = getClass().getClassLoader().getResources("migrations");
+                    while (migrationsResources.hasMoreElements()) {
+                        plugin.getLogger().info("ClassLoader resource at migrations: " + migrationsResources.nextElement());
+                    }
                 } catch (FlywayException e) {
                     plugin.getLogger().log(Level.SEVERE, "Database schema migration failed!", e);
                     

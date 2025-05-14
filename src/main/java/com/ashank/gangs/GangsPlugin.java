@@ -16,6 +16,17 @@ public class GangsPlugin extends JavaPlugin {
     public void onEnable() {
         
         getLogger().info("Gangs plugin enabling process started (bootstrapper handles registration).");
+
+        // Resource loading debug
+        try (java.io.InputStream test = getClass().getClassLoader().getResourceAsStream("migrations/V1__Create_initial_tables.sql")) {
+            if (test != null) {
+                getLogger().info("DEBUG: Migration resource V1__Create_initial_tables.sql FOUND in classpath.");
+            } else {
+                getLogger().warning("DEBUG: Migration resource V1__Create_initial_tables.sql NOT FOUND in classpath!");
+            }
+        } catch (Exception e) {
+            getLogger().warning("DEBUG: Error checking migration resource: " + e.getMessage());
+        }
     }
 
     @Override

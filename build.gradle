@@ -64,14 +64,14 @@ test {
 }
 
 shadowJar {
-    archiveFileName.set('guilds-1.0.0.jar')
+    archiveFileName.set('gangs-1.0.0.jar')
     manifest {
         attributes['paperweight-mappings-namespace'] = 'mojang'
     }
 }
 
 jar {
-    archiveFileName.set('guilds-1.0.0.jar')
+    archiveFileName.set('gangs-1.0.0.jar')
 }
 
 build {
