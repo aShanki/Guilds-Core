@@ -72,34 +72,16 @@ public class StorageManager {
                 dataSource = new HikariDataSource(config);
                 plugin.getLogger().info("Database connection pool initialized successfully.");
 
+                // Programmatic schema initialization
                 try {
-                    Flyway flyway = Flyway.configure()
-                            .dataSource(dataSource)
-                            .locations("classpath:db/migration")
-                            .baselineOnMigrate(true)
-                            .validateMigrationNaming(true)
-                            .load();
-                    plugin.getLogger().info("Flyway available migrations: " + java.util.Arrays.toString(flyway.info().all()));
-                    flyway.migrate();
-                    plugin.getLogger().info("Database schema migration completed successfully.");
-
-                    // DEBUG: List all resources in classpath:db/migration
-                    try {
-                        java.util.Enumeration<java.net.URL> resources = getClass().getClassLoader().getResources("db/migration");
-                        while (resources.hasMoreElements()) {
-                            plugin.getLogger().info("DEBUG: Found db/migration resource in classpath: " + resources.nextElement());
-                        }
-                    } catch (Exception e) {
-                        plugin.getLogger().warning("DEBUG: Error listing db/migration resources: " + e.getMessage());
-                    }
-                } catch (FlywayException e) {
-                    plugin.getLogger().log(Level.SEVERE, "Database schema migration failed!", e);
-                    
+                    initializeSchema();
+                } catch (SQLException e) {
+                    plugin.getLogger().log(Level.SEVERE, "Database schema initialization failed!", e);
                     if (dataSource != null && !dataSource.isClosed()) {
                         dataSource.close();
                     }
-                    dataSource = null; 
-                    return; 
+                    dataSource = null;
+                    return;
                 }
                 
             } catch (Exception e) {
@@ -729,4 +711,54 @@ public class StorageManager {
         return getPlayerGangAsync(playerUuid).thenApply(optGang -> optGang.map(Gang::getName).orElse(null));
     }
 
+    /**
+     * Programmatically creates all required tables if they do not exist.
+     */
+    private void initializeSchema() throws SQLException {
+        try (Connection conn = dataSource.getConnection()) {
+            try (Statement stmt = conn.createStatement()) {
+                // gangs table
+                stmt.executeUpdate("""
+                    CREATE TABLE IF NOT EXISTS gangs (
+                        id CHAR(36) PRIMARY KEY,
+                        name VARCHAR(64) NOT NULL UNIQUE,
+                        leader_uuid CHAR(36) NOT NULL,
+                        description TEXT
+                    )
+                """);
+
+                // gang_members table
+                stmt.executeUpdate("""
+                    CREATE TABLE IF NOT EXISTS gang_members (
+                        gang_id CHAR(36) NOT NULL,
+                        player_uuid CHAR(36) NOT NULL,
+                        PRIMARY KEY (gang_id, player_uuid),
+                        FOREIGN KEY (gang_id) REFERENCES gangs(id) ON DELETE CASCADE
+                    )
+                """);
+
+                // invites table
+                stmt.executeUpdate("""
+                    CREATE TABLE IF NOT EXISTS invites (
+                        invited_uuid CHAR(36) PRIMARY KEY,
+                        gang_id CHAR(36) NOT NULL,
+                        inviter_uuid CHAR(36) NOT NULL,
+                        timestamp BIGINT NOT NULL,
+                        FOREIGN KEY (gang_id) REFERENCES gangs(id) ON DELETE CASCADE
+                    )
+                """);
+
+                // confirmations table
+                stmt.executeUpdate("""
+                    CREATE TABLE IF NOT EXISTS confirmations (
+                        player_uuid CHAR(36) PRIMARY KEY,
+                        type VARCHAR(32) NOT NULL,
+                        gang_id CHAR(36),
+                        timestamp BIGINT NOT NULL,
+                        FOREIGN KEY (gang_id) REFERENCES gangs(id) ON DELETE CASCADE
+                    )
+                """);
+            }
+        }
+    }
 }
