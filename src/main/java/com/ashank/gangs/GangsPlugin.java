@@ -17,7 +17,7 @@ public class GangsPlugin extends JavaPlugin {
         
         getLogger().info("Gangs plugin enabling process started (bootstrapper handles registration).");
 
-        // Resource loading debug
+       
         try (java.io.InputStream test = getClass().getClassLoader().getResourceAsStream("db/migration/V1__Init.sql")) {
             if (test != null) {
                 getLogger().info("DEBUG: Migration resource V1__Init.sql FOUND in classpath.");

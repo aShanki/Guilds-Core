@@ -77,7 +77,10 @@ public class InviteCommand {
                 }
                 
                 player.sendMessage(miniMessage.deserialize(messages.get("invite_sent")));
-                target.sendMessage(miniMessage.deserialize(messages.get("invite_received")));
+                java.util.Map<String, String> placeholders = new java.util.HashMap<>();
+                placeholders.put("gang", gang.getName());
+                placeholders.put("leader", player.getName());
+                target.sendMessage(miniMessage.deserialize(messages.get("invite_received", placeholders)));
             }).exceptionally(ex -> {
                 plugin.getLogger().severe("Error checking target gang for invite: " + ex.getMessage());
                 player.sendMessage(miniMessage.deserialize(messages.get("error")));

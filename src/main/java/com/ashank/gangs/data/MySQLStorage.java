@@ -55,7 +55,7 @@ public class MySQLStorage implements Storage {
                 dataSource = new HikariDataSource(config);
                 plugin.getLogger().info("Database connection pool initialized successfully.");
 
-                // Programmatic schema initialization
+               
                 try {
                     initializeSchema();
                 } catch (SQLException e) {
@@ -101,13 +101,13 @@ public class MySQLStorage implements Storage {
         });
     }
 
-    // --- All other Storage methods are copied from StorageManager, replacing usages of 'StorageManager' with 'MySQLStorage' and adapting as needed ---
-    // For brevity, only the structure is shown here. The full implementation will be a direct copy of StorageManager's methods, 
-    // with the class name and interface implementation updated.
+   
+   
+   
 
-    // ... (copy all public methods from StorageManager here, adapting as needed) ...
+   
 
-    // For brevity, the rest of the methods should be copied from StorageManager.java and adapted to fit this new class.
+   
 
     @Override
     public CompletableFuture<Boolean> isGangNameTaken(String name) {
@@ -151,13 +151,13 @@ public class MySQLStorage implements Storage {
     private void initializeSchema() throws SQLException {
         try (Connection conn = dataSource.getConnection()) {
             try (Statement stmt = conn.createStatement()) {
-                // Example schema, adjust as needed for your plugin's requirements
+               
                 stmt.executeUpdate(
                     "CREATE TABLE IF NOT EXISTS gangs (" +
                     "id VARCHAR(36) PRIMARY KEY," +
                     "name VARCHAR(64) NOT NULL," +
                     "leader_uuid VARCHAR(36) NOT NULL" +
-                    // Add other columns as needed
+                   
                     ")"
                 );
                 stmt.executeUpdate(
@@ -165,14 +165,14 @@ public class MySQLStorage implements Storage {
                     "gang_id VARCHAR(36) NOT NULL," +
                     "player_uuid VARCHAR(36) NOT NULL," +
                     "PRIMARY KEY (gang_id, player_uuid)" +
-                    // Add other columns as needed
+                   
                     ")"
                 );
             }
         }
     }
 
-    // Stub implementations for all required Storage interface methods
+   
     @Override public CompletableFuture<Void> createGang(Gang gang) { throw new UnsupportedOperationException("Not implemented"); }
     @Override public CompletableFuture<Optional<Gang>> getGangById(UUID gangId) { throw new UnsupportedOperationException("Not implemented"); }
     @Override public CompletableFuture<Optional<Gang>> getGangByName(String name) { throw new UnsupportedOperationException("Not implemented"); }

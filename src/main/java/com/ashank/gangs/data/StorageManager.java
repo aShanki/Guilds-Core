@@ -68,7 +68,7 @@ public class StorageManager {
                 dataSource = new HikariDataSource(config);
                 plugin.getLogger().info("Database connection pool initialized successfully.");
 
-                // Programmatic schema initialization
+               
                 try {
                     initializeSchema();
                 } catch (SQLException e) {
@@ -713,7 +713,7 @@ public class StorageManager {
     private void initializeSchema() throws SQLException {
         try (Connection conn = dataSource.getConnection()) {
             try (Statement stmt = conn.createStatement()) {
-                // gangs table
+               
                 stmt.executeUpdate("""
                     CREATE TABLE IF NOT EXISTS gangs (
                         id CHAR(36) PRIMARY KEY,
@@ -723,7 +723,7 @@ public class StorageManager {
                     )
                 """);
 
-                // gang_members table
+               
                 stmt.executeUpdate("""
                     CREATE TABLE IF NOT EXISTS gang_members (
                         gang_id CHAR(36) NOT NULL,
@@ -733,7 +733,7 @@ public class StorageManager {
                     )
                 """);
 
-                // invites table
+               
                 stmt.executeUpdate("""
                     CREATE TABLE IF NOT EXISTS invites (
                         invited_uuid CHAR(36) PRIMARY KEY,
@@ -744,7 +744,7 @@ public class StorageManager {
                     )
                 """);
 
-                // confirmations table
+               
                 stmt.executeUpdate("""
                     CREATE TABLE IF NOT EXISTS confirmations (
                         player_uuid CHAR(36) PRIMARY KEY,
