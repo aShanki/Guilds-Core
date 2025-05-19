@@ -1,16 +1,17 @@
 package com.ashank.gangs;
 
 import com.ashank.gangs.data.StorageManager;
+import com.ashank.gangs.managers.GangAudienceManager;
+import com.ashank.gangs.managers.Messages;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
-import com.ashank.gangs.managers.Messages;
 
 public class GangsPlugin extends JavaPlugin {
-
 
     private StorageManager storageManager;
     private BukkitTask inviteCleanupTask;
     private Messages messages;
+    private GangAudienceManager audienceManager;
 
     @Override
     public void onEnable() {
@@ -28,6 +29,18 @@ public class GangsPlugin extends JavaPlugin {
             getLogger().warning("DEBUG: Error checking migration resource: " + e.getMessage());
         }
     }
+    
+    /**
+     * Initializes the audience manager. Call this after the storage manager is set up.
+     */
+    public void initAudienceManager() {
+        if (storageManager != null) {
+            audienceManager = new GangAudienceManager(this, storageManager);
+            getLogger().info("Gang audience manager initialized");
+        } else {
+            getLogger().warning("Attempted to initialize audience manager before storage manager!");
+        }
+    }
 
     @Override
     public void onDisable() {
@@ -37,6 +50,10 @@ public class GangsPlugin extends JavaPlugin {
             getLogger().info("Cancelled expired invite cleanup task.");
         }
 
+        if (audienceManager != null) {
+            audienceManager.shutdown();
+            getLogger().info("Gang audience manager shut down.");
+        }
 
         if (storageManager != null) {
             storageManager.closeDataSource();
@@ -67,5 +84,9 @@ public class GangsPlugin extends JavaPlugin {
 
     public void setMessages(Messages messages) {
         this.messages = messages;
+    }
+    
+    public GangAudienceManager getAudienceManager() {
+        return audienceManager;
     }
 } 

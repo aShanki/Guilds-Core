@@ -25,6 +25,11 @@ public class GangsPluginBootstrap implements PluginBootstrap {
         plugin.getLifecycleManager().registerEventHandler(io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents.COMMANDS, event -> {
             plugin.getStorageManager().initializeDataSource().thenRunAsync(() -> {
                 plugin.getLogger().info("StorageManager initialized and migrations run.");
+                
+               
+                plugin.initAudienceManager();
+                plugin.getLogger().info("Audience manager initialized.");
+                
                 long inviteExpirySeconds = plugin.getConfig().getLong("gangs.invites.expiry-seconds", 3600);
                 long cleanupIntervalTicks = 20L * 60 * 5;
                 plugin.setInviteCleanupTask(plugin.getServer().getScheduler().runTaskTimerAsynchronously(plugin, () -> {
