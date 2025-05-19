@@ -96,10 +96,6 @@ You can also customize all player-facing messages in `plugins/Gangs/messages.yml
   **Permission:** `gangs.admin.forcerename`
 - `/gangs forcerename confirm` — *Confirm force renaming a gang*  
   **Permission:** `gangs.admin.forcerename.confirm`
-- `/gangs adminrename <gang> <name>` — *Admin rename (legacy/alternate)*  
-  **Permission:** `gangs.admin.adminrename`
-- `/gangs adminrename confirm` — *Confirm admin rename*  
-  **Permission:** `gangs.admin.adminrename.confirm`
 
 ## Placeholders
 
