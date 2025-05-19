@@ -13,6 +13,7 @@ import com.ashank.gangs.commands.sub.HelpCommand;
 import com.ashank.gangs.commands.sub.ListCommand;
 import com.ashank.gangs.commands.sub.GcCommand;
 import com.ashank.gangs.commands.sub.ForceDisbandCommand;
+import com.ashank.gangs.commands.sub.ForceDescriptionCommand;
 import com.ashank.gangs.commands.sub.RenameCommand;
 import com.ashank.gangs.commands.sub.ForceRenameCommand;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -40,6 +41,7 @@ public final class GangCommandTree {
             .then(ListCommand.build(plugin))
             .then(GcCommand.build(plugin))
             .then(ForceDisbandCommand.build(plugin))
+            .then(ForceDescriptionCommand.build(plugin))
             .then(RenameCommand.build(plugin))
             .then(ForceRenameCommand.build(plugin))
             .build();

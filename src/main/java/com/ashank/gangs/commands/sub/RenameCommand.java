@@ -39,6 +39,7 @@ public class RenameCommand {
         if (!(sender instanceof Player player)) {
             sender.sendMessage(miniMessage.deserialize(messages.get("command_player_only")));
             return Command.SINGLE_SUCCESS;
+            
         }
         String newName = context.getArgument("name", String.class);
         UUID playerUuid = player.getUniqueId();
