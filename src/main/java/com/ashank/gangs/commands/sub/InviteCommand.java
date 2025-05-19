@@ -75,12 +75,24 @@ public class InviteCommand {
                     player.sendMessage(miniMessage.deserialize(messages.get("invite_already_in_gang")));
                     return;
                 }
-                
-                player.sendMessage(miniMessage.deserialize(messages.get("invite_sent")));
-                java.util.Map<String, String> placeholders = new java.util.HashMap<>();
-                placeholders.put("gang", gang.getName());
-                placeholders.put("leader", player.getName());
-                target.sendMessage(miniMessage.deserialize(messages.get("invite_received", placeholders)));
+                storageManager.addInvite(new com.ashank.gangs.data.PendingInvite(
+                    targetUuid,
+                    gang.getGangId(),
+                    playerUuid,
+                    System.currentTimeMillis()
+                )).thenRun(() -> {
+                    java.util.Map<String, String> placeholders = new java.util.HashMap<>();
+                    placeholders.put("player", target.getName());
+                    player.sendMessage(miniMessage.deserialize(messages.get("invite_sent", placeholders)));
+                    placeholders.clear();
+                    placeholders.put("gang", gang.getName());
+                    placeholders.put("leader", player.getName());
+                    target.sendMessage(miniMessage.deserialize(messages.get("invite_received", placeholders)));
+                }).exceptionally(ex -> {
+                    plugin.getLogger().severe("Error adding invite: " + ex.getMessage());
+                    player.sendMessage(miniMessage.deserialize(messages.get("error")));
+                    return null;
+                });
             }).exceptionally(ex -> {
                 plugin.getLogger().severe("Error checking target gang for invite: " + ex.getMessage());
                 player.sendMessage(miniMessage.deserialize(messages.get("error")));
