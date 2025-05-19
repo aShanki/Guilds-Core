@@ -23,7 +23,7 @@ public class DisbandCommand {
         MiniMessage miniMessage = MiniMessage.miniMessage();
 
         return LiteralArgumentBuilder.<CommandSourceStack>literal("disband")
-                .requires(source -> source.getSender() instanceof Player && source.getSender().hasPermission("gangs.command.disband"))
+                .requires(source -> source.getSender() instanceof Player && source.getSender().hasPermission("gangs.player.disband"))
                 .executes(context -> executeDisband(context, plugin, storageManager, messages, miniMessage))
                 .then(com.ashank.gangs.commands.sub.DisbandConfirmCommand.build(plugin));
     }

@@ -13,7 +13,7 @@ public class AcceptCommand {
     
     public static LiteralArgumentBuilder<CommandSourceStack> build(GangsPlugin plugin) {
         return LiteralArgumentBuilder.<CommandSourceStack>literal("accept")
-                .requires(source -> source.getSender() instanceof Player && source.getSender().hasPermission("gangs.command.accept"))
+                .requires(source -> source.getSender() instanceof Player && source.getSender().hasPermission("gangs.player.accept"))
                 .executes(context -> {
                     CommandSender sender = context.getSource().getSender();
                     if (!(sender instanceof Player player)) {

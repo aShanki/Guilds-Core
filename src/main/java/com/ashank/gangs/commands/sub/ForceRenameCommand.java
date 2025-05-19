@@ -32,7 +32,7 @@ public class ForceRenameCommand {
         Messages messages = plugin.getMessages();
         MiniMessage miniMessage = MiniMessage.miniMessage();
         return LiteralArgumentBuilder.<CommandSourceStack>literal("forcerename")
-                .requires(source -> source.getSender().hasPermission("gangs.admin.rename"))
+                .requires(source -> source.getSender().hasPermission("gangs.admin.forcerename"))
                 .then(RequiredArgumentBuilder.<CommandSourceStack, String>argument("gang", StringArgumentType.string())
                         .suggests(suggestGangNames(plugin))
                         .then(RequiredArgumentBuilder.<CommandSourceStack, String>argument("name", StringArgumentType.string())

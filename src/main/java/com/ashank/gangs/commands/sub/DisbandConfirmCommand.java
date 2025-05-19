@@ -26,7 +26,7 @@ public class DisbandConfirmCommand {
         MiniMessage miniMessage = MiniMessage.miniMessage();
 
         return LiteralArgumentBuilder.<CommandSourceStack>literal("confirm")
-                .requires(source -> source.getSender() instanceof Player && source.getSender().hasPermission("gangs.command.disband.confirm"))
+                .requires(source -> source.getSender() instanceof Player && source.getSender().hasPermission("gangs.player.disband.confirm"))
                 .executes(context -> executeConfirm(context, plugin, storageManager, messages, miniMessage));
     }
 

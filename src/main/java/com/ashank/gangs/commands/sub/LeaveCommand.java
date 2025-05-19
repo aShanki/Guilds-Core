@@ -21,7 +21,7 @@ public class LeaveCommand {
         Messages messages = plugin.getMessages();
         MiniMessage miniMessage = MiniMessage.miniMessage();
         return LiteralArgumentBuilder.<CommandSourceStack>literal("leave")
-                .requires(source -> source.getSender() instanceof Player && source.getSender().hasPermission("gangs.command.leave"))
+                .requires(source -> source.getSender() instanceof Player && source.getSender().hasPermission("gangs.player.leave"))
                 .executes(context -> executeLeave(context, plugin, storageManager, messages, miniMessage));
     }
 

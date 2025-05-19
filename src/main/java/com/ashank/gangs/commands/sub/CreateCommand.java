@@ -38,7 +38,7 @@ public class CreateCommand {
         return LiteralArgumentBuilder.<CommandSourceStack>literal("create")
                 .requires(source -> {
                     CommandSender sender = source.getSender();
-                    return sender instanceof Player && sender.hasPermission("gangs.command.create");
+                    return sender instanceof Player && sender.hasPermission("gangs.player.create");
                 })
                 .then(RequiredArgumentBuilder.<CommandSourceStack, String>argument("name", StringArgumentType.string())
                         .executes(context -> executeCreate(context, plugin, storageManager, messages, miniMessage)));

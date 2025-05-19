@@ -26,7 +26,7 @@ public class KickCommand {
         Messages messages = plugin.getMessages();
 
         return LiteralArgumentBuilder.<CommandSourceStack>literal("kick")
-                .requires(source -> source.getSender().hasPermission("gangs.command.kick"))
+                .requires(source -> source.getSender().hasPermission("gangs.player.kick"))
                 .then(RequiredArgumentBuilder.<CommandSourceStack, String>argument("player", StringArgumentType.word())
                         .suggests((context, builder) -> {
                             String remaining = builder.getRemaining().toLowerCase();

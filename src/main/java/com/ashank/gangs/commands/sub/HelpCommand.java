@@ -16,7 +16,7 @@ public class HelpCommand {
         MiniMessage miniMessage = MiniMessage.miniMessage();
         
         return LiteralArgumentBuilder.<CommandSourceStack>literal("help")
-                .requires(source -> source.getSender().hasPermission("gangs.command.help"))
+                .requires(source -> source.getSender().hasPermission("gangs.player.help"))
                 .executes(context -> {
                     CommandSender sender = context.getSource().getSender();
                     sender.sendMessage(miniMessage.deserialize(messages.get("help")));

@@ -24,7 +24,7 @@ public class ListCommand {
     
     public static LiteralArgumentBuilder<CommandSourceStack> build(GangsPlugin plugin) {
         return LiteralArgumentBuilder.<CommandSourceStack>literal("list")
-                .requires(source -> source.getSender() instanceof Player && source.getSender().hasPermission("gangs.command.list"))
+                .requires(source -> source.getSender() instanceof Player && source.getSender().hasPermission("gangs.player.list"))
                 .executes(context -> executeList(context, plugin, 1))
                 .then(RequiredArgumentBuilder.<CommandSourceStack, Integer>argument("page", IntegerArgumentType.integer(1))
                         .executes(context -> executeList(context, plugin, context.getArgument("page", Integer.class))));

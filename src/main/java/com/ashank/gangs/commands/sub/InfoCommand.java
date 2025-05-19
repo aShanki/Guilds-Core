@@ -30,7 +30,7 @@ public class InfoCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> build(GangsPlugin pluginInstance) {
         plugin = pluginInstance;
         return LiteralArgumentBuilder.<CommandSourceStack>literal("info")
-                .requires(source -> source.getSender().hasPermission("gangs.command.info"))
+                .requires(source -> source.getSender().hasPermission("gangs.player.info"))
                 .executes(context -> executeInfo(context))
                 .then(RequiredArgumentBuilder.<CommandSourceStack, String>argument("name", StringArgumentType.greedyString())
                         .suggests((context, builder) -> suggestGangNames(plugin, builder))

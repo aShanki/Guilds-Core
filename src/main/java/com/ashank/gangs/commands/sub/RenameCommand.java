@@ -28,7 +28,7 @@ public class RenameCommand {
         Messages messages = plugin.getMessages();
         MiniMessage miniMessage = MiniMessage.miniMessage();
         return LiteralArgumentBuilder.<CommandSourceStack>literal("rename")
-                .requires(source -> source.getSender() instanceof Player && source.getSender().hasPermission("gangs.command.rename"))
+                .requires(source -> source.getSender() instanceof Player && source.getSender().hasPermission("gangs.player.rename"))
                 .then(RequiredArgumentBuilder.<CommandSourceStack, String>argument("name", StringArgumentType.string())
                         .executes(context -> executeRename(context, plugin, storageManager, messages, miniMessage)))
                 .then(RenameConfirmCommand.build(plugin));

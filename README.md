@@ -56,22 +56,50 @@ You can also customize all player-facing messages in `plugins/Gangs/messages.yml
 
 ## Commands
 
-- `/gangs` (aliases: `/gs`): Main command for all gang actions.
-- `/gangs create <name>`: Create a new gang
-- `/gangs invite <player>`: Invite a player
-- `/gangs join <name>`: Join a gang
-- `/gangs leave`: Leave your current gang
-- `/gangs kick <player>`: Kick a member
-- `/gangs description <text>`: Set gang description
-- `/gangs info [name]`: View info about a gang
-- `/gangs list [page]`: List all gangs
-- `/gangs disband`: Disband your gang (leader only)
-- `/gangs admin ...`: Admin subcommands (rename, wipe description, disband any gang, etc.)
-- `/gc <message>`: Send a message to your gang chat
+- `/gangs`: Main command for all gang actions.
+- `/gangs create <name>` — *Create a new gang*  
+  **Permission:** `gangs.player.create`
+- `/gangs invite <player>` — *Invite a player*  
+  **Permission:** `gangs.player.invite`
+- `/gangs accept` — *Accept a gang invite*  
+  **Permission:** `gangs.player.accept`
+- `/gangs kick <player>` — *Kick a member from your gang*  
+  **Permission:** `gangs.player.kick`
+- `/gangs leave` — *Leave your current gang*  
+  **Permission:** `gangs.player.leave`
+- `/gangs description <text>` — *Set gang description*  
+  **Permission:** `gangs.player.description`
+- `/gangs info [name]` — *View info about a gang*  
+  **Permission:** `gangs.player.info`
+- `/gangs list [page]` — *List all gangs*  
+  **Permission:** `gangs.player.list`
+- `/gangs disband` — *Disband your gang (leader only)*  
+  **Permission:** `gangs.player.disband`
+- `/gangs disband confirm` — *Confirm disbanding your gang*  
+  **Permission:** `gangs.player.disband.confirm`
+- `/gangs rename <name>` — *Rename your gang (leader only)*  
+  **Permission:** `gangs.player.rename`
+- `/gangs rename confirm` — *Confirm renaming your gang*  
+  **Permission:** `gangs.player.rename.confirm`
+- `/gangs help` — *Show help message*  
+  **Permission:** `gangs.player.help`
+- `/gc <message>` — *Send a message to your gang chat*  
+  **Permission:** *(player, no explicit permission required)*
 
-## Permissions
+**Admin Commands:**
 
-- `gangs.admin`: Allows use of all admin gang commands (default: op)
+- `/gangs forcedisband <gang>` — *Force disband any gang*  
+  **Permission:** `gangs.admin.forcedisband`
+- `/gangs forcedescription <gang> <description>` — *Force set a gang's description*  
+  **Permission:** `gangs.admin.forcedescription`
+- `/gangs forcerename <gang> <name>` — *Force rename a gang*  
+  **Permission:** `gangs.admin.forcerename`
+- `/gangs forcerename confirm` — *Confirm force renaming a gang*  
+  **Permission:** `gangs.admin.forcerename.confirm`
+- `/gangs adminrename <gang> <name>` — *Admin rename (legacy/alternate)*  
+  **Permission:** `gangs.admin.adminrename`
+- `/gangs adminrename confirm` — *Confirm admin rename*  
+  **Permission:** `gangs.admin.adminrename.confirm`
 
 ## Placeholders
 

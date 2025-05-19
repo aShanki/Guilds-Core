@@ -21,7 +21,7 @@ public class ForceRenameConfirmCommand {
         Messages messages = plugin.getMessages();
         MiniMessage miniMessage = MiniMessage.miniMessage();
         return LiteralArgumentBuilder.<CommandSourceStack>literal("confirm")
-                .requires(source -> source.getSender().hasPermission("gangs.admin.rename.confirm"))
+                .requires(source -> source.getSender().hasPermission("gangs.admin.forcerename.confirm"))
                 .executes(context -> executeConfirm(context, plugin, storageManager, messages, miniMessage));
     }
 

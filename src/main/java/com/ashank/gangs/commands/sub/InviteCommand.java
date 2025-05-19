@@ -27,7 +27,7 @@ public class InviteCommand {
         Messages messages = plugin.getMessages();
         MiniMessage miniMessage = MiniMessage.miniMessage();
         return LiteralArgumentBuilder.<CommandSourceStack>literal("invite")
-                .requires(source -> source.getSender() instanceof Player && source.getSender().hasPermission("gangs.command.invite"))
+                .requires(source -> source.getSender() instanceof Player && source.getSender().hasPermission("gangs.player.invite"))
                 .then(RequiredArgumentBuilder.<CommandSourceStack, String>argument("player", StringArgumentType.word())
                         .suggests(InviteCommand::suggestOnlinePlayers)
                         .executes(context -> executeInvite(context, plugin, storageManager, messages, miniMessage)));

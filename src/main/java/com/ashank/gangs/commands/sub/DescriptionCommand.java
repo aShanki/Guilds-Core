@@ -29,7 +29,7 @@ public class DescriptionCommand {
         MiniMessage miniMessage = MiniMessage.miniMessage(); 
 
         return LiteralArgumentBuilder.<CommandSourceStack>literal("description")
-                .requires(source -> source.getSender() instanceof Player && source.getSender().hasPermission("gangs.command.description"))
+                .requires(source -> source.getSender() instanceof Player && source.getSender().hasPermission("gangs.player.description"))
                 .then(RequiredArgumentBuilder.<CommandSourceStack, String>argument("text", StringArgumentType.greedyString())
                         .executes(context -> executeSetDescription(context, plugin, storageManager, messages, miniMessage)));
     }
