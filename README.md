@@ -9,10 +9,11 @@ A modern, customizable Minecraft plugin for managing player gangs. Supports Pape
 - Gang descriptions and info
 - Invite system with expiry
 - Admin commands for moderation
-- MySQL database support (async, high performance)
+- **Dual database support**: MySQL and SQLite (async, high performance)
 - Configurable messages and settings
 - PlaceholderAPI integration
 - Permissions-based access control
+- Automated release workflow via GitHub Actions
 
 ## Installation
 
@@ -24,17 +25,28 @@ A modern, customizable Minecraft plugin for managing player gangs. Supports Pape
 
 ## Configuration
 
-Edit `plugins/Gangs/config.yml` to set up your MySQL database and customize gang settings:
+Edit `plugins/Gangs/config.yml` to configure your database and customize gang settings:
 
 ```yaml
-mysql:
-  host: localhost
-  port: 3306
-  database: gangs
-  username: gangs_user
-  password: "secret"
-  pool-size: 10
+# Database Configuration
+database:
+  # Database type: mysql or sqlite
+  type: sqlite
+  
+  # SQLite Configuration (used when type is sqlite)
+  sqlite:
+    file: "gangs.db" # Database file path (relative to plugin folder)
+  
+  # MySQL Configuration (used when type is mysql)
+  mysql:
+    host: localhost
+    port: 3306
+    database: gangs
+    username: gangs_user
+    password: "secret"
+    pool-size: 10
 
+# Gang Settings
 gang:
   name:
     min-length: 3
@@ -48,9 +60,15 @@ gang:
 list:
   items-per-page: 10
 
-placeholder:
-  no-gang-value: "None"
+no-gang-value: "None"
 ```
+
+### Database Options
+
+The plugin supports two database types:
+
+- **SQLite** (default): Lightweight, file-based database. Perfect for smaller servers or testing. No additional setup required.
+- **MySQL**: Full-featured database server. Recommended for larger servers or when sharing data across multiple servers.
 
 You can also customize all player-facing messages in `plugins/Gangs/messages.yml`.
 
