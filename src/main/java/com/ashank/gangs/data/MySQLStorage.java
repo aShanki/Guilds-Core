@@ -20,7 +20,13 @@ public class MySQLStorage implements Storage {
     public CompletableFuture<Void> initialize(JavaPlugin plugin) {
         this.plugin = plugin;
         return CompletableFuture.runAsync(() -> {
-            ConfigurationSection mysqlConfig = plugin.getConfig().getConfigurationSection("mysql");
+            ConfigurationSection databaseConfig = plugin.getConfig().getConfigurationSection("database");
+            if (databaseConfig == null) {
+                plugin.getLogger().severe("Database configuration section is missing in config.yml!");
+                return;
+            }
+            
+            ConfigurationSection mysqlConfig = databaseConfig.getConfigurationSection("mysql");
             if (mysqlConfig == null) {
                 plugin.getLogger().severe("MySQL configuration section is missing in config.yml!");
                 return;

@@ -18,7 +18,7 @@ public class GangChatCommand {
         private final GangAudienceManager audienceManager;
         private final MiniMessage miniMessage = MiniMessage.miniMessage();
 
-        public GangChatListener(GangsPlugin plugin, com.ashank.gangs.data.StorageManager storageManager) {
+        public GangChatListener(GangsPlugin plugin, com.ashank.gangs.data.Storage storage) {
             this.plugin = plugin;
             this.audienceManager = plugin.getAudienceManager();
         }

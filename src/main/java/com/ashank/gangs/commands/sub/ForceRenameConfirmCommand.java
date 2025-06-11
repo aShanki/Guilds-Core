@@ -2,7 +2,7 @@ package com.ashank.gangs.commands.sub;
 
 import com.ashank.gangs.GangsPlugin;
 import com.ashank.gangs.data.Confirmation;
-import com.ashank.gangs.data.StorageManager;
+import com.ashank.gangs.data.Storage;
 import com.ashank.gangs.managers.Messages;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -17,7 +17,7 @@ import java.util.UUID;
 
 public class ForceRenameConfirmCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> build(GangsPlugin plugin) {
-        StorageManager storageManager = plugin.getStorageManager();
+        Storage storageManager = plugin.getStorage();
         Messages messages = plugin.getMessages();
         MiniMessage miniMessage = MiniMessage.miniMessage();
         return LiteralArgumentBuilder.<CommandSourceStack>literal("confirm")
@@ -25,7 +25,7 @@ public class ForceRenameConfirmCommand {
                 .executes(context -> executeConfirm(context, plugin, storageManager, messages, miniMessage));
     }
 
-    private static int executeConfirm(CommandContext<CommandSourceStack> context, GangsPlugin plugin, StorageManager storageManager, Messages messages, MiniMessage miniMessage) {
+    private static int executeConfirm(CommandContext<CommandSourceStack> context, GangsPlugin plugin, Storage storageManager, Messages messages, MiniMessage miniMessage) {
         CommandSender sender = context.getSource().getSender();
         UUID adminUuid = sender instanceof Player ? ((Player) sender).getUniqueId() : UUID.randomUUID();
         storageManager.getConfirmation(adminUuid, "adminrename:").thenAcceptAsync(confirmationOpt -> {

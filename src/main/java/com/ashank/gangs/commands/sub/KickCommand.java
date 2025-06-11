@@ -2,7 +2,7 @@ package com.ashank.gangs.commands.sub;
 
 import com.ashank.gangs.Gang;
 import com.ashank.gangs.GangsPlugin;
-import com.ashank.gangs.data.StorageManager;
+import com.ashank.gangs.data.Storage;
 import com.ashank.gangs.managers.Messages;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -22,7 +22,7 @@ import java.util.UUID;
 public class KickCommand {
     
     public static LiteralArgumentBuilder<CommandSourceStack> build(GangsPlugin plugin) {
-        StorageManager storageManager = plugin.getStorageManager();
+        Storage storageManager = plugin.getStorage();
         Messages messages = plugin.getMessages();
 
         return LiteralArgumentBuilder.<CommandSourceStack>literal("kick")
@@ -39,7 +39,7 @@ public class KickCommand {
                         .executes(context -> executeKick(context, plugin, storageManager, messages)));
     }
 
-    private static int executeKick(CommandContext<CommandSourceStack> context, GangsPlugin plugin, StorageManager storageManager, Messages messages) throws CommandSyntaxException {
+    private static int executeKick(CommandContext<CommandSourceStack> context, GangsPlugin plugin, Storage storageManager, Messages messages) throws CommandSyntaxException {
         CommandSender sender = context.getSource().getSender();
 
         if (!(sender instanceof Player player)) {

@@ -1,7 +1,7 @@
 package com.ashank.gangs.commands.sub;
 
 import com.ashank.gangs.GangsPlugin;
-import com.ashank.gangs.data.StorageManager;
+import com.ashank.gangs.data.Storage;
 import com.ashank.gangs.managers.Messages;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -31,7 +31,7 @@ public class CreateCommand {
     
     
     public static LiteralArgumentBuilder<CommandSourceStack> build(GangsPlugin plugin) {
-        StorageManager storageManager = plugin.getStorageManager();
+        Storage storageManager = plugin.getStorage();
         Messages messages = plugin.getMessages();
         MiniMessage miniMessage = MiniMessage.miniMessage();
 
@@ -44,7 +44,7 @@ public class CreateCommand {
                         .executes(context -> executeCreate(context, plugin, storageManager, messages, miniMessage)));
     }
 
-    private static int executeCreate(CommandContext<CommandSourceStack> context, GangsPlugin plugin, StorageManager storageManager, Messages messages, MiniMessage miniMessage) throws CommandSyntaxException {
+    private static int executeCreate(CommandContext<CommandSourceStack> context, GangsPlugin plugin, Storage storageManager, Messages messages, MiniMessage miniMessage) throws CommandSyntaxException {
         CommandSender sender = context.getSource().getSender();
         
         if (!(sender instanceof Player)) {

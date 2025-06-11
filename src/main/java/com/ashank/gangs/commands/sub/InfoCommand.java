@@ -45,13 +45,13 @@ public class InfoCommand {
         }
 
         UUID playerUuid = player.getUniqueId();
-        plugin.getStorageManager().getPlayerGangId(playerUuid).thenCompose(gangIdOpt -> {
+        plugin.getStorage().getPlayerGangId(playerUuid).thenCompose(gangIdOpt -> {
             if (gangIdOpt.isEmpty()) {
                 player.sendMessage(MiniMessage.miniMessage().deserialize("<red>You are not in a gang."));
                 return CompletableFuture.completedFuture(null);
             }
             UUID gangId = gangIdOpt.get();
-            return plugin.getStorageManager().getGangById(gangId).thenCompose(gangOpt -> {
+            return plugin.getStorage().getGangById(gangId).thenCompose(gangOpt -> {
                 if (gangOpt.isEmpty()) {
                     player.sendMessage(MiniMessage.miniMessage().deserialize("<red>Could not find your gang."));
                     return CompletableFuture.completedFuture(null);
@@ -76,7 +76,7 @@ public class InfoCommand {
         }
 
         String gangName = StringArgumentType.getString(context, "name");
-        plugin.getStorageManager().getGangByName(gangName).thenCompose(gangOpt -> {
+        plugin.getStorage().getGangByName(gangName).thenCompose(gangOpt -> {
             if (gangOpt.isEmpty()) {
                 player.sendMessage(MiniMessage.miniMessage().deserialize("<red>Gang not found."));
                 return CompletableFuture.completedFuture(null);
@@ -125,7 +125,7 @@ public class InfoCommand {
 
     private static CompletableFuture<Suggestions> suggestGangNames(GangsPlugin plugin, SuggestionsBuilder builder) {
         String remaining = builder.getRemaining().toLowerCase();
-        return plugin.getStorageManager().getAllGangs()
+        return plugin.getStorage().getAllGangs()
                 .thenApply(gangs -> {
                     gangs.stream()
                         .map(Gang::getName)

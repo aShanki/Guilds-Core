@@ -2,7 +2,7 @@ package com.ashank.gangs.commands.sub;
 
 import com.ashank.gangs.GangsPlugin;
 import com.ashank.gangs.data.Confirmation;
-import com.ashank.gangs.data.StorageManager;
+import com.ashank.gangs.data.Storage;
 import com.ashank.gangs.managers.Messages;
 import com.ashank.gangs.Gang;
 import com.mojang.brigadier.Command;
@@ -28,7 +28,7 @@ public class ForceRenameCommand {
     private static final int MAX_LENGTH = 16;
 
     public static LiteralArgumentBuilder<CommandSourceStack> build(GangsPlugin plugin) {
-        StorageManager storageManager = plugin.getStorageManager();
+        Storage storageManager = plugin.getStorage();
         Messages messages = plugin.getMessages();
         MiniMessage miniMessage = MiniMessage.miniMessage();
         return LiteralArgumentBuilder.<CommandSourceStack>literal("forcerename")
@@ -40,7 +40,7 @@ public class ForceRenameCommand {
                 .then(ForceRenameConfirmCommand.build(plugin));
     }
 
-    private static int executeAdminRename(CommandContext<CommandSourceStack> context, GangsPlugin plugin, StorageManager storageManager, Messages messages, MiniMessage miniMessage) {
+    private static int executeAdminRename(CommandContext<CommandSourceStack> context, GangsPlugin plugin, Storage storageManager, Messages messages, MiniMessage miniMessage) {
         CommandSender sender = context.getSource().getSender();
         String gangName = context.getArgument("gang", String.class);
         String newName = context.getArgument("name", String.class);
@@ -81,7 +81,7 @@ public class ForceRenameCommand {
     private static SuggestionProvider<CommandSourceStack> suggestGangNames(GangsPlugin plugin) {
         return (context, builder) -> {
             CompletableFuture<Suggestions> future = new CompletableFuture<>();
-            plugin.getStorageManager().getAllGangs().thenAccept(gangs -> {
+            plugin.getStorage().getAllGangs().thenAccept(gangs -> {
                 for (Gang gang : gangs) {
                     builder.suggest(gang.getName());
                 }

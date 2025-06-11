@@ -9,6 +9,8 @@ TODO.MD
 classes/
 /bin/
 
+/server/
+
 # VSCode
 .vscode/
 .cursor/

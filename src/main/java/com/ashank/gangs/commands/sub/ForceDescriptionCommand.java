@@ -1,7 +1,7 @@
 package com.ashank.gangs.commands.sub;
 
 import com.ashank.gangs.GangsPlugin;
-import com.ashank.gangs.data.StorageManager;
+import com.ashank.gangs.data.Storage;
 import com.ashank.gangs.managers.Messages;
 import com.ashank.gangs.Gang;
 import com.mojang.brigadier.Command;
@@ -21,7 +21,7 @@ public class ForceDescriptionCommand {
     private static final int MAX_DESCRIPTION_LENGTH = 24;
 
     public static LiteralArgumentBuilder<CommandSourceStack> build(GangsPlugin plugin) {
-        StorageManager storageManager = plugin.getStorageManager();
+        Storage storageManager = plugin.getStorage();
         Messages messages = plugin.getMessages();
         MiniMessage miniMessage = MiniMessage.miniMessage();
 
@@ -36,7 +36,7 @@ public class ForceDescriptionCommand {
     }
 
     private static int executeForceDescription(CommandContext<CommandSourceStack> context, GangsPlugin plugin,
-                                               StorageManager storageManager, Messages messages, MiniMessage miniMessage) {
+                                               Storage storageManager, Messages messages, MiniMessage miniMessage) {
         CommandSender sender = context.getSource().getSender();
         String gangName = context.getArgument("gang", String.class);
         String description = context.getArgument("description", String.class);
@@ -81,7 +81,7 @@ public class ForceDescriptionCommand {
     private static SuggestionProvider<CommandSourceStack> suggestGangNames(GangsPlugin plugin) {
         return (context, builder) -> {
             CompletableFuture<Suggestions> future = new CompletableFuture<>();
-            plugin.getStorageManager().getAllGangs().thenAccept(gangs -> {
+            plugin.getStorage().getAllGangs().thenAccept(gangs -> {
                 for (Gang gang : gangs) {
                     builder.suggest(gang.getName());
                 }

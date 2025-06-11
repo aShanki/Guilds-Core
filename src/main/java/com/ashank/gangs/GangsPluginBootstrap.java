@@ -19,12 +19,12 @@ public class GangsPluginBootstrap implements PluginBootstrap {
         GangsPlugin plugin = new GangsPlugin();
         plugin.saveDefaultConfig();
         plugin.reloadConfig();
-        plugin.setStorageManager(new com.ashank.gangs.data.StorageManager(plugin));
+        plugin.setStorage(com.ashank.gangs.data.StorageFactory.createStorage(plugin));
         plugin.setMessages(new com.ashank.gangs.managers.Messages(plugin));
 
         plugin.getLifecycleManager().registerEventHandler(io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents.COMMANDS, event -> {
-            plugin.getStorageManager().initializeDataSource().thenRunAsync(() -> {
-                plugin.getLogger().info("StorageManager initialized and migrations run.");
+            plugin.getStorage().initialize(plugin).thenRunAsync(() -> {
+                plugin.getLogger().info("Storage initialized.");
                 
                
                 plugin.initAudienceManager();
@@ -34,7 +34,7 @@ public class GangsPluginBootstrap implements PluginBootstrap {
                 long cleanupIntervalTicks = 20L * 60 * 5;
                 plugin.setInviteCleanupTask(plugin.getServer().getScheduler().runTaskTimerAsynchronously(plugin, () -> {
                     long expiryTimestamp = System.currentTimeMillis() - java.util.concurrent.TimeUnit.SECONDS.toMillis(inviteExpirySeconds);
-                    plugin.getStorageManager().removeExpiredInvites(expiryTimestamp)
+                    plugin.getStorage().removeExpiredInvites(expiryTimestamp)
                         .thenAccept(removedCount -> {
                             if (removedCount > 0) {
                                 plugin.getLogger().info("Removed " + removedCount + " expired gang invites.");
@@ -47,7 +47,7 @@ public class GangsPluginBootstrap implements PluginBootstrap {
                 }, cleanupIntervalTicks, cleanupIntervalTicks));
                 plugin.getLogger().info("Scheduled expired invite cleanup task.");
                 plugin.getServer().getPluginManager().registerEvents(
-                    new com.ashank.gangs.commands.GangChatCommand.GangChatListener(plugin, plugin.getStorageManager()), plugin);
+                    new com.ashank.gangs.commands.GangChatCommand.GangChatListener(plugin, plugin.getStorage()), plugin);
                 if (org.bukkit.Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
                     try {
                         Class<?> expansionClass = Class.forName("com.ashank.gangs.GangsExpansion");
@@ -61,8 +61,8 @@ public class GangsPluginBootstrap implements PluginBootstrap {
                     }
                 }
             }, plugin.getServer().getScheduler().getMainThreadExecutor(plugin)).exceptionally(ex -> {
-                plugin.getLogger().severe("Failed to initialize StorageManager: " + ex.getMessage());
-                plugin.getLogger().log(java.util.logging.Level.SEVERE, "StorageManager initialization failed", ex);
+                plugin.getLogger().severe("Failed to initialize Storage: " + ex.getMessage());
+                plugin.getLogger().log(java.util.logging.Level.SEVERE, "Storage initialization failed", ex);
                 plugin.getServer().getPluginManager().disablePlugin(plugin);
                 return null;
             });

@@ -3,7 +3,7 @@ package com.ashank.gangs.commands.sub;
 import com.ashank.gangs.Gang;
 import com.ashank.gangs.GangsPlugin;
 import com.ashank.gangs.data.Confirmation;
-import com.ashank.gangs.data.StorageManager;
+import com.ashank.gangs.data.Storage;
 import com.ashank.gangs.managers.Messages;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -21,7 +21,7 @@ import java.util.UUID;
 public class DisbandConfirmCommand {
     
     public static LiteralArgumentBuilder<CommandSourceStack> build(GangsPlugin plugin) {
-        StorageManager storageManager = plugin.getStorageManager();
+        Storage storageManager = plugin.getStorage();
         Messages messages = plugin.getMessages();
         MiniMessage miniMessage = MiniMessage.miniMessage();
 
@@ -31,7 +31,7 @@ public class DisbandConfirmCommand {
     }
 
     private static int executeConfirm(CommandContext<CommandSourceStack> context, GangsPlugin plugin,
-            StorageManager storageManager, Messages messages, MiniMessage miniMessage) {
+            Storage storageManager, Messages messages, MiniMessage miniMessage) {
         CommandSender sender = context.getSource().getSender();
         
         if (!(sender instanceof Player)) {

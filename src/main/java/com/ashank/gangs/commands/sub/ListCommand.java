@@ -33,7 +33,7 @@ public class ListCommand {
     private static int executeList(CommandContext<CommandSourceStack> context, GangsPlugin plugin, int requestedPage) {
         CommandSender sender = context.getSource().getSender();
 
-        plugin.getStorageManager().getAllGangs().thenAccept(gangs -> {
+        plugin.getStorage().getAllGangs().thenAccept(gangs -> {
             MiniMessage miniMessage = MiniMessage.miniMessage();
             int totalPages = Math.max(1, (gangs.size() + GUILDS_PER_PAGE - 1) / GUILDS_PER_PAGE);
             

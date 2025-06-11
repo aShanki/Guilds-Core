@@ -1,7 +1,7 @@
 package com.ashank.gangs.commands.sub;
 
 import com.ashank.gangs.GangsPlugin;
-import com.ashank.gangs.data.StorageManager;
+import com.ashank.gangs.data.Storage;
 import com.ashank.gangs.managers.Messages;
 import com.ashank.gangs.Gang;
 import com.mojang.brigadier.Command;
@@ -19,7 +19,7 @@ import java.util.concurrent.CompletableFuture;
 public class ForceDisbandCommand {
 
     public static LiteralArgumentBuilder<CommandSourceStack> build(GangsPlugin plugin) {
-        StorageManager storageManager = plugin.getStorageManager();
+        Storage storageManager = plugin.getStorage();
         Messages messages = plugin.getMessages();
         MiniMessage miniMessage = MiniMessage.miniMessage();
 
@@ -32,7 +32,7 @@ public class ForceDisbandCommand {
     }
 
     private static int executeForceDisband(CommandContext<CommandSourceStack> context, GangsPlugin plugin,
-                                           StorageManager storageManager, Messages messages, MiniMessage miniMessage) {
+                                           Storage storageManager, Messages messages, MiniMessage miniMessage) {
         CommandSender sender = context.getSource().getSender();
         String gangName = context.getArgument("gang", String.class);
 
@@ -56,7 +56,7 @@ public class ForceDisbandCommand {
     private static SuggestionProvider<CommandSourceStack> suggestGangNames(GangsPlugin plugin) {
         return (context, builder) -> {
             CompletableFuture<Suggestions> future = new CompletableFuture<>();
-            plugin.getStorageManager().getAllGangs().thenAccept(gangs -> {
+            plugin.getStorage().getAllGangs().thenAccept(gangs -> {
                 for (Gang gang : gangs) {
                     builder.suggest(gang.getName());
                 }

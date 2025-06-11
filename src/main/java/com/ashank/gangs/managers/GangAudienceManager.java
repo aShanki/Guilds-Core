@@ -2,7 +2,7 @@ package com.ashank.gangs.managers;
 
 import com.ashank.gangs.Gang;
 import com.ashank.gangs.GangsPlugin;
-import com.ashank.gangs.data.StorageManager;
+import com.ashank.gangs.data.Storage;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -23,16 +23,16 @@ import java.util.stream.Collectors;
  */
 public class GangAudienceManager {
     private final GangsPlugin plugin;
-    private final StorageManager storageManager;
+    private final Storage storage;
     private final MiniMessage miniMessage = MiniMessage.miniMessage();
     
    
     private final Map<UUID, Audience> gangAudienceCache = new HashMap<>();
     private BukkitTask refreshTask;
     
-    public GangAudienceManager(GangsPlugin plugin, StorageManager storageManager) {
+    public GangAudienceManager(GangsPlugin plugin, Storage storage) {
         this.plugin = plugin;
-        this.storageManager = storageManager;
+        this.storage = storage;
         startRefreshTask();
     }
     
@@ -49,7 +49,7 @@ public class GangAudienceManager {
      */
     private void refreshAudienceCache() {
         gangAudienceCache.clear();
-        storageManager.getAllGangs().thenAcceptAsync(gangs -> {
+        storage.getAllGangs().thenAcceptAsync(gangs -> {
             for (Gang gang : gangs) {
                
                 Audience audience = createGangAudience(gang);
@@ -95,7 +95,7 @@ public class GangAudienceManager {
         }
         
        
-        return storageManager.getGangById(gangId).thenApply(gangOpt -> {
+        return storage.getGangById(gangId).thenApply(gangOpt -> {
             if (gangOpt.isEmpty()) {
                 return Audience.empty();
             }
@@ -119,7 +119,7 @@ public class GangAudienceManager {
      * @return A CompletableFuture that resolves to an Audience for the player's gang, or empty() if player not in a gang
      */
     public CompletableFuture<Audience> getPlayerGangAudience(UUID playerUuid) {
-        return storageManager.getPlayerGangId(playerUuid).thenCompose(gangIdOpt -> {
+        return storage.getPlayerGangId(playerUuid).thenCompose(gangIdOpt -> {
             if (gangIdOpt.isEmpty()) {
                 return CompletableFuture.completedFuture(Audience.empty());
             }
@@ -134,7 +134,7 @@ public class GangAudienceManager {
      * @return An audience targeting all online gang leaders
      */
     public CompletableFuture<Audience> getGangLeadersAudience() {
-        return storageManager.getAllGangs().thenApply(gangs -> {
+        return storage.getAllGangs().thenApply(gangs -> {
             Set<UUID> leaderUuids = gangs.stream()
                     .map(Gang::getLeaderUuid)
                     .collect(Collectors.toSet());
@@ -162,7 +162,7 @@ public class GangAudienceManager {
     public CompletableFuture<Boolean> sendGangChatMessage(Player player, String message) {
         UUID playerUuid = player.getUniqueId();
         
-        return storageManager.getPlayerGangAsync(playerUuid).thenCompose(gangOpt -> {
+        return storage.getPlayerGangAsync(playerUuid).thenCompose(gangOpt -> {
             if (gangOpt.isEmpty()) {
                 player.sendMessage(miniMessage.deserialize("<red>You are not in a gang."));
                 return CompletableFuture.completedFuture(false);
@@ -197,7 +197,7 @@ public class GangAudienceManager {
      * @return A CompletableFuture that resolves to the number of gangs that received the message
      */
     public CompletableFuture<Integer> broadcastToAllGangs(String message, String prefix) {
-        return storageManager.getAllGangs().thenApply(gangs -> {
+        return storage.getAllGangs().thenApply(gangs -> {
             int count = 0;
             Component formattedMessage = prefix != null
                     ? miniMessage.deserialize(prefix + " " + message)

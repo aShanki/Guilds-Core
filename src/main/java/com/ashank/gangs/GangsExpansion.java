@@ -3,16 +3,16 @@ package com.ashank.gangs;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
-import com.ashank.gangs.data.StorageManager;
+import com.ashank.gangs.data.Storage;
 import java.util.concurrent.CompletableFuture;
 
 public class GangsExpansion extends PlaceholderExpansion {
     private final GangsPlugin plugin;
-    private final StorageManager storageManager;
+    private final Storage storageManager;
 
     public GangsExpansion(GangsPlugin plugin) {
         this.plugin = plugin;
-        this.storageManager = plugin.getStorageManager();
+        this.storageManager = plugin.getStorage();
     }
 
     @Override
@@ -44,9 +44,13 @@ public class GangsExpansion extends PlaceholderExpansion {
 
 
             try {
-                CompletableFuture<String> future = storageManager.getGangNameForPlayer(player.getUniqueId());
-                String gangName = future.get();
-                return gangName != null ? gangName : plugin.getConfig().getString("placeholder.no_gang", "None");
+                CompletableFuture<java.util.Optional<Gang>> future = storageManager.getPlayerGangAsync(player.getUniqueId());
+                java.util.Optional<Gang> gangOpt = future.get();
+                if (gangOpt.isPresent()) {
+                    return gangOpt.get().getName();
+                } else {
+                    return plugin.getConfig().getString("placeholder.no_gang", "None");
+                }
             } catch (Exception e) {
                 plugin.getLogger().warning("Failed to fetch gang name for placeholder: " + e.getMessage());
                 return plugin.getConfig().getString("placeholder.no_gang", "None");

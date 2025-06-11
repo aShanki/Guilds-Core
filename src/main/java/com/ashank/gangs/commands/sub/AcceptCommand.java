@@ -21,7 +21,7 @@ public class AcceptCommand {
                         return Command.SINGLE_SUCCESS;
                     }
                     GangsPlugin pluginInstance = plugin;
-                    var storageManager = pluginInstance.getStorageManager();
+                    var storageManager = pluginInstance.getStorage();
                     var messages = pluginInstance.getMessages();
                     var miniMessage = net.kyori.adventure.text.minimessage.MiniMessage.miniMessage();
                     UUID playerUuid = player.getUniqueId();

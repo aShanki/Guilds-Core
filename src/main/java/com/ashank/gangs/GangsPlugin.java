@@ -1,6 +1,6 @@
 package com.ashank.gangs;
 
-import com.ashank.gangs.data.StorageManager;
+import com.ashank.gangs.data.Storage;
 import com.ashank.gangs.managers.GangAudienceManager;
 import com.ashank.gangs.managers.Messages;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -8,7 +8,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 public class GangsPlugin extends JavaPlugin {
 
-    private StorageManager storageManager;
+    private Storage storage;
     private BukkitTask inviteCleanupTask;
     private Messages messages;
     private GangAudienceManager audienceManager;
@@ -34,11 +34,11 @@ public class GangsPlugin extends JavaPlugin {
      * Initializes the audience manager. Call this after the storage manager is set up.
      */
     public void initAudienceManager() {
-        if (storageManager != null) {
-            audienceManager = new GangAudienceManager(this, storageManager);
+        if (storage != null) {
+            audienceManager = new GangAudienceManager(this, storage);
             getLogger().info("Gang audience manager initialized");
         } else {
-            getLogger().warning("Attempted to initialize audience manager before storage manager!");
+            getLogger().warning("Attempted to initialize audience manager before storage!");
         }
     }
 
@@ -55,19 +55,19 @@ public class GangsPlugin extends JavaPlugin {
             getLogger().info("Gang audience manager shut down.");
         }
 
-        if (storageManager != null) {
-            storageManager.closeDataSource();
+        if (storage != null) {
+            storage.close();
         }
         getLogger().info("Gangs plugin disabled.");
     }
 
 
-    public StorageManager getStorageManager() {
-        return storageManager;
+    public Storage getStorage() {
+        return storage;
     }
 
-    public void setStorageManager(StorageManager storageManager) {
-        this.storageManager = storageManager;
+    public void setStorage(Storage storage) {
+        this.storage = storage;
     }
 
     public BukkitTask getInviteCleanupTask() {
